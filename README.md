@@ -20,19 +20,19 @@ Run one long-form task five times, or run the complete long-form battery:
 
 ```sh
 python3 -m agentbench run --agent claude-code --task python.workflow-scheduler.v1 --repetitions 5
-python3 -m agentbench run --agent claude-code --all --repetitions 5 --rows 1000000 --seed 20260929
+python3 -m agentbench run --agent claude-code --all --repetitions 5
 python3 -m agentbench report
 python3 -m agentbench review --open
 ```
 
-`results/runs/` preserves generated files and exact inputs when using the optional runner. `agentbench report` writes a quality-only CSV with pass/fail and artifact paths. `agentbench review --open` opens a local gallery with image, video, and audio previews and readable text outputs. You can add personal ratings and notes, then download them as JSON. No cost report is generated.
+`results/runs/` preserves outputs and copies the exact versioned inputs when using the optional runner. `agentbench report` writes a quality-only CSV with pass/fail and artifact paths. `agentbench review --open` opens a local gallery with image, video, and audio previews and readable text outputs. You can add personal ratings and notes, then download them as JSON. No cost report is generated.
 
 ## Use a web or desktop AI tool
 
 This works for tools that do not offer a compatible local CLI. It creates the same portable package for ChatGPT, Devin, Gemini, or another interface; there is no requirement to install Claude Code.
 
 ```sh
-python3 -m agentbench prepare --task data.clean-large-csv.v1 --agent "Product and model name" --rows 1000000 --seed 20260929
+python3 -m agentbench prepare --task data.clean-large-csv.v1 --agent "Product and model name"
 ```
 
 Upload the printed `task-package.zip` to a **new conversation/session** in the AI tool (or extract it and attach all contained files if ZIP upload is unsupported). Send the exact `prompt.md` printed by the command and ask it to return every file listed in `output_files`. Copy the outputs into the matching local `results/runs/<run-id>/workspace/submission/` folder and evaluate them:
@@ -43,11 +43,11 @@ python3 -m agentbench report
 python3 -m agentbench review --open
 ```
 
-Prepare one capsule per agent with identical task, `--rows`, and `--seed` settings. The generated inputs will have matching hashes. Review each output in the gallery and assess cost manually in the provider session.
+Prepare one capsule per agent. The task and inputs are pinned in Git, so each package contains identical bytes; compare the `input_sha256` field in each `pending.json` if you want to verify this. Review each output in the gallery and assess cost manually in the provider session.
 
 ## Runnable task set
 
-The main battery contains long-form tasks designed to require several minutes of multi-step work: cleaning a generated million-row dataset, reviewing a 12-defect multi-file Python service, and implementing a deterministic workflow scheduler with hidden contract tests. Each has an estimated work range in `agentbench list`; actual wall time is measured per run and can vary by tool, hardware, and model. `--all` runs only these long-form tasks. Short JSON, bug-fix, and artifact tasks remain available by ID as calibration checks. The audio jingle has exact pitch and duration checks plus a human listening step. The video storyboard's semantic content is for human review. Android tasks are planned, not yet part of the runnable battery.
+The main battery contains long-form tasks designed to require several minutes of multi-step work: cleaning a fixed million-row dataset, reviewing a 12-defect multi-file Python service, and implementing a deterministic workflow scheduler with hidden contract tests. Each has an estimated work range in `agentbench list`; actual wall time is measured per run and can vary by tool, hardware, and model. `--all` runs only these long-form tasks. Short JSON, bug-fix, and artifact tasks remain available by ID as calibration checks. The audio jingle has exact pitch and duration checks plus a human listening step. The video storyboard's semantic content is for human review. Android tasks are planned, not yet part of the runnable battery.
 
 ## Fair comparison and output review
 

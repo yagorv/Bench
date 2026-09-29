@@ -162,7 +162,7 @@ def _workspace_input_hash(workspace: Path) -> str:
     return _sha256_files(files, workspace)
 
 
-def _prepare_workspace(task_dir: Path, run_dir: Path, task: dict[str, Any], rows: int, seed: int) -> Path:
+def _prepare_workspace(task_dir: Path, run_dir: Path, task: dict[str, Any]) -> Path:
     workspace = run_dir / "workspace"
     workspace.mkdir(parents=True)
     shutil.copyfile(task_dir / "task.json", workspace / "task.json")
@@ -176,38 +176,7 @@ def _prepare_workspace(task_dir: Path, run_dir: Path, task: dict[str, Any], rows
     if context.exists():
         shutil.copytree(context, workspace / "context", dirs_exist_ok=True)
     (workspace / "submission").mkdir()
-    if task["id"] == "data.clean-large-csv.v1":
-        _generate_events(workspace / "inputs" / "events.csv", rows, seed)
     return workspace
-
-
-def _generate_events(path: Path, rows: int, seed: int) -> None:
-    import random
-    from datetime import datetime, timedelta, timezone
-
-    if rows < 1:
-        raise BenchError("--rows must be at least 1")
-    rng = random.Random(seed)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    base = datetime(2024, 1, 1, tzinfo=timezone.utc)
-    with path.open("w", newline="", encoding="utf-8") as stream:
-        writer = csv.writer(stream, lineterminator="\n")
-        writer.writerow(["record_id", "email", "event_time", "amount"])
-        previous_id = ""
-        for i in range(rows):
-            record_id = f"evt-{i:09d}"
-            if i > 0 and i % 997 == 0:
-                record_id = previous_id
-            else:
-                previous_id = record_id
-            email = f"user{i % 50000}@example.test"
-            if i % 89 == 0:
-                email = f" User{i % 50000}@EXAMPLE.TEST "
-            if i % 991 == 0:
-                email = "bad-address"
-            timestamp = base + timedelta(seconds=rng.randrange(0, 20_000_000))
-            stamp = timestamp.isoformat().replace("+00:00", "Z")
-            writer.writerow([record_id, email, stamp, f"{rng.randrange(1, 500000) / 100:.2f}"])
 
 
 def _run_process(profile: dict[str, Any], prompt: str, workspace: Path,
@@ -677,11 +646,11 @@ def _eval_python_unittest(task: dict[str, Any], task_dir: Path, workspace: Path)
 
 
 def _run_one(profile: dict[str, Any], task: dict[str, Any], task_dir: Path,
-             repetition: int, rows: int, seed: int) -> dict[str, Any]:
+             repetition: int) -> dict[str, Any]:
     run_id = f"{profile['id']}__{task['id']}__{repetition}__{uuid.uuid4().hex[:8]}"
     run_dir = RESULTS_DIR / run_id
     run_dir.mkdir(parents=True, exist_ok=False)
-    workspace = _prepare_workspace(task_dir, run_dir, task, rows, seed)
+    workspace = _prepare_workspace(task_dir, run_dir, task)
     prompt = _task_prompt(task, task_dir, workspace)
     task_hash = __import__("hashlib").sha256(prompt.encode("utf-8")).hexdigest()
     input_hash = _workspace_input_hash(workspace)
@@ -702,7 +671,7 @@ def _run_one(profile: dict[str, Any], task: dict[str, Any], task_dir: Path,
             "finished_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
             "benchmark_version": __version__, "prompt_sha256": task_hash,
             "input_sha256": input_hash,
-            "seed": seed, "rows": rows if task["id"] == "data.clean-large-csv.v1" else None,
+            "dataset": task.get("dataset"),
             "environment": {"python": sys.version.split()[0], "platform": sys.platform},
             "process": process, "evaluation": evaluation,
             "passed": bool(evaluation["passed"]),
@@ -744,7 +713,7 @@ def cmd_run(args: argparse.Namespace) -> int:
             continue
         for rep in range(1, args.repetitions + 1):
             print(f"RUN  {profile.get('label', profile['id'])} / {task_id} / {rep}/{args.repetitions}", flush=True)
-            result = _run_one(profile, task, task_dir, rep, args.rows, args.seed)
+            result = _run_one(profile, task, task_dir, rep)
             output.append(result)
             print(f"{'PASS' if result.get('passed') else 'FAIL'} {result['run_id']}" +
                   f" ({result.get('process', {}).get('wall_time_ms', '?')} ms)", flush=True)
@@ -762,7 +731,7 @@ def cmd_prepare(args: argparse.Namespace) -> int:
     run_id = f"{agent_id}__{task['id']}__{args.repetition}__{uuid.uuid4().hex[:8]}"
     run_dir = RESULTS_DIR / run_id
     run_dir.mkdir(parents=True, exist_ok=False)
-    workspace = _prepare_workspace(task_dir, run_dir, task, args.rows, args.seed)
+    workspace = _prepare_workspace(task_dir, run_dir, task)
     prompt = _task_prompt(task, task_dir, workspace)
     (run_dir / "prompt.md").write_text(prompt, encoding="utf-8")
     (workspace / "prompt.md").write_text(prompt, encoding="utf-8")
@@ -775,7 +744,7 @@ def cmd_prepare(args: argparse.Namespace) -> int:
         "agent_id": agent_id, "agent_label": args.agent, "repetition": args.repetition,
         "started_at": started_at, "benchmark_version": __version__,
         "prompt_sha256": prompt_hash, "input_sha256": input_hash,
-        "seed": args.seed, "rows": args.rows if task["id"] == "data.clean-large-csv.v1" else None,
+        "dataset": task.get("dataset"),
         "environment": {"python": sys.version.split()[0], "platform": sys.platform},
     })
     package = run_dir / "task-package.zip"
@@ -957,14 +926,10 @@ def make_parser() -> argparse.ArgumentParser:
     choose.add_argument("--category", help="run all tasks in a category")
     choose.add_argument("--all", action="store_true", help="run every long-form task the agent profile supports")
     run.add_argument("--repetitions", type=int, default=1)
-    run.add_argument("--rows", type=int, default=1_000_000, help="data task input size (default: 1 million)")
-    run.add_argument("--seed", type=int, default=20260929)
     prepare = sub.add_parser("prepare", help="export the identical task package for a web/desktop AI tool")
     prepare.add_argument("--task", required=True, help="task ID")
     prepare.add_argument("--agent", required=True, help="label for the AI tool/model")
     prepare.add_argument("--repetition", type=int, default=1)
-    prepare.add_argument("--rows", type=int, default=1_000_000)
-    prepare.add_argument("--seed", type=int, default=20260929)
     finish = sub.add_parser("evaluate", help="score a prepared manual run and save provider metrics")
     finish.add_argument("--run-id", required=True, help="ID printed by prepare")
     finish.add_argument("--provider-cost", type=float)
@@ -990,8 +955,6 @@ def main(argv: list[str] | None = None) -> int:
             raise BenchError("--repetitions must be at least 1")
         if getattr(args, "repetition", 1) < 1:
             raise BenchError("--repetition must be at least 1")
-        if getattr(args, "rows", 1) < 1:
-            raise BenchError("--rows must be at least 1")
         if getattr(args, "provider_cost", None) is not None and args.provider_cost < 0:
             raise BenchError("--provider-cost cannot be negative")
         for field in ("input_tokens", "output_tokens", "wall_time_ms"):

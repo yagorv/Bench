@@ -1,6 +1,6 @@
 # Benchmark catalog
 
-The runnable tasks are versioned under `benchmarks/tasks/`. List the current suite with `python3 -m agentbench list`. Every run receives the same task prompt and input bytes for a given task, seed, and row count; each attempt starts from a new workspace. The evaluator is part of this repository and runs locally after the agent exits.
+The runnable tasks and all of their input files are versioned under `benchmarks/tasks/`. List the current suite with `python3 -m agentbench list`. Every run receives the same task prompt and input bytes; each attempt starts from a new workspace. The evaluator is part of this repository and runs locally after the agent exits.
 
 ## Long-form battery
 
@@ -8,7 +8,7 @@ The runnable tasks are versioned under `benchmarks/tasks/`. List the current sui
 
 | ID | Category | Task | Deterministic evaluator |
 |---|---|---|---|
-| `data.clean-large-csv.v1` | Data engineering | Stream, normalize, validate, deduplicate, and sort up to a million generated events | Every canonical output row and summary compared; solution runtime measured |
+| `data.clean-large-csv.v1` | Data engineering | Stream, normalize, validate, deduplicate, and sort one million fixed events from the included 65.6 MB CSV | Every canonical output row and summary compared; solution runtime measured |
 | `review.python-security-defect.v1` | Code review | Review a multi-file Python service and identify 12 seeded defects | Exact defect locations and severities; rejects missing and extra findings |
 | `python.workflow-scheduler.v1` | Software engineering | Implement a modular deterministic dependency scheduler with retries, failures, skips, CLI, and validation | Hidden contract suite across supplied and generated workflows |
 

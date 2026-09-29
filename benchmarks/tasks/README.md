@@ -5,18 +5,18 @@ Cada carpeta es una cápsula: `prompt.md` es el examen en Markdown y los archivo
 ## Ejecutar un examen manualmente
 
 1. Elige una tarea en [el catálogo](../catalog.md). Abre su `prompt.md` y entrega ese texto sin editarlo.
-2. Adjunta los archivos indicados por `context_files`, `input_files` y `starter_files` en su `task.json`. Si la herramienta admite ZIP, puedes usar `python3 -m agentbench prepare --task ID --agent "nombre del agente"` para preparar una copia limpia.
+2. Adjunta los archivos indicados por `context_files`, `input_files` y `starter_files` en su `task.json`. Todos los datos de entrada están incluidos y versionados en Git. Si la herramienta admite ZIP, puedes usar `python3 -m agentbench prepare --task ID --agent "nombre del agente"` para preparar una copia limpia.
 3. No adjuntes `expected.json` ni la carpeta `grader/`: contienen material reservado para comprobar la entrega.
 4. Pide que devuelva todos los archivos indicados por `output_files` en `task.json`. Para tareas de imagen, audio o vídeo, descarga el artefacto original, no solo una descripción o enlace.
-5. Repite con una sesión nueva y los mismos archivos, prompt, semilla, tamaño de datos y configuración para cada agente.
+5. Repite con una sesión nueva y los mismos archivos, prompt y configuración para cada agente.
 6. Abre tú las salidas y compáralas. `python3 -m agentbench review --open` crea una galería local después de guardar los archivos de cada ejecución. Puedes dejar una valoración y notas por entrega. El coste y el tiempo los registras tú desde la herramienta usada.
 
 ## Dataset CSV
 
-La prueba `data.clean-large-csv.v1` genera de forma reproducible un CSV de un millón de filas por defecto. Prepara una ejecución por agente con los mismos valores de `--rows` y `--seed`; el generador produce los mismos bytes. Puedes confirmar que los hashes `input_sha256` de `pending.json` coinciden.
+La prueba `data.clean-large-csv.v1` incluye `inputs/events.csv`, un CSV fijo de un millón de filas (65.6 MB). El archivo ya está en el repositorio y se copia sin cambios al paquete de cada agente. Puedes confirmar que los hashes `input_sha256` de `pending.json` coinciden.
 
 ```sh
-python3 -m agentbench prepare --task data.clean-large-csv.v1 --agent "ronda-1" --rows 1000000 --seed 20260929
+python3 -m agentbench prepare --task data.clean-large-csv.v1 --agent "ronda-1"
 ```
 
 Cada ZIP contiene el prompt, contexto, datos y archivos de inicio, pero no el resultado esperado del evaluador. Usa una sesión nueva por agente.

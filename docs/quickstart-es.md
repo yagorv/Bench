@@ -23,8 +23,8 @@ python -m agentbench init
 Abre `.agentbench/agents.json` y deja solo los perfiles instalados, o añade otro con el formato de `.agentbench/agents.example.json`. Los perfiles de ejemplo ya fijan el mismo mensaje, carpeta de trabajo y límite de tiempo para cada producto. Ejecuta una tarea varias veces:
 
 ```sh
-python -m agentbench run --agent claude-code --task data.clean-large-csv.v1 --repetitions 5 --rows 1000000 --seed 20260929
-python -m agentbench run --agent codex-cli --task data.clean-large-csv.v1 --repetitions 5 --rows 1000000 --seed 20260929
+python -m agentbench run --agent claude-code --task data.clean-large-csv.v1 --repetitions 5
+python -m agentbench run --agent codex-cli --task data.clean-large-csv.v1 --repetitions 5
 python -m agentbench report
 python -m agentbench review --open
 ```
@@ -52,10 +52,10 @@ python -m agentbench review --open
 
 El benchmark no agrega ni publica un informe de costes. Revisa el coste directamente en el panel del proveedor; `report` resume calidad y `review --open` permite inspeccionar los archivos.
 
-Repite `prepare` una vez por intento. Para que la comparación sea justa, usa tarea, tamaño, semilla, versión del modelo, configuración, permisos y límites iguales. Inicia una conversación nueva para cada intento.
+Repite `prepare` una vez por intento. Los archivos de entrada ya están fijados y versionados; para que la comparación sea justa, usa la misma tarea, versión del modelo, configuración, permisos y límites. Inicia una conversación nueva para cada intento.
 
 ## Qué medir
 
 `results/quality-summary.csv` resume aprobación y rutas de artefactos, sin costes. `python -m agentbench review --open` abre imágenes, vídeo y audio en una galería local y muestra vistas previas de código y texto. Puedes dejar una nota y una valoración de 1 a 5 por resultado y descargar `human-review.json`. Los archivos originales están en `results/runs/`. Revisa costes en el panel del proveedor.
 
-La batería principal (`--all`) contiene tareas de varios minutos: limpiar un CSV generado de un millón de filas, revisar un servicio Python de varios módulos con 12 defectos sembrados e implementar un planificador de flujos con dependencias, concurrencia, reintentos y pruebas ocultas. Las estimaciones de duración orientan; el tiempo real queda registrado y varía entre herramientas. Las tareas cortas de JSON, bug fix, imagen, vídeo, audio y Excel siguen disponibles como calibración usando `--task`. Las tareas de imagen y vídeo solo validan propiedades del archivo; todavía no puntúan si el resultado responde semánticamente al prompt.
+La batería principal (`--all`) contiene tareas de varios minutos: limpiar un CSV fijo de un millón de filas, revisar un servicio Python de varios módulos con 12 defectos sembrados e implementar un planificador de flujos con dependencias, concurrencia, reintentos y pruebas ocultas. Las estimaciones de duración orientan; el tiempo real queda registrado y varía entre herramientas. Las tareas cortas de JSON, bug fix, imagen, vídeo, audio y Excel siguen disponibles como calibración usando `--task`. Las tareas de imagen y vídeo solo validan propiedades del archivo; todavía no puntúan si el resultado responde semánticamente al prompt.
