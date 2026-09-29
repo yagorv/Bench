@@ -11,6 +11,7 @@ Each task requires the agent to include a usage receipt with its final answer. T
 - `android-app/`: small Android fixture repository for future build, bug-fix, review, and feature tasks.
 - `benchmarks/android/`: initial Android task definitions.
 - `benchmarks/one-shot/`: single-prompt artifact generation tasks across text, image, video, and spreadsheets.
+- `benchmarks/catalog.md`: proposed task suite and release priorities.
 - `docs/`: run protocol and scoring rules.
 - `docs/run-receipt.schema.json`: required agent-reported usage receipt format.
 
