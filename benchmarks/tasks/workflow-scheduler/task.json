@@ -26,7 +26,12 @@
   ],
   "generated_input_files": [],
   "output_files": [
-    "submission/schedules.json"
+    "submission/schedules.json",
+    "submission/flowbench/__init__.py",
+    "submission/flowbench/__main__.py",
+    "submission/flowbench/cli.py",
+    "submission/flowbench/validate.py",
+    "submission/flowbench/engine.py"
   ],
   "evaluator": {
     "type": "python-unittest",

@@ -3,6 +3,7 @@ work/
 results/
 *.csv
 !/benchmarks/tasks/data-clean-large-csv/inputs/events.csv
+!/exams/**/*.csv
 *.parquet
 
 # Android / Gradle

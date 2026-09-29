@@ -1,0 +1,27 @@
+[
+  {
+    "id": "c3",
+    "email": " Ada@Example.com ",
+    "amount": 12.5
+  },
+  {
+    "id": "a1",
+    "email": "bad",
+    "amount": 7
+  },
+  {
+    "id": "b2",
+    "email": "bea@example.test",
+    "amount": 0
+  },
+  {
+    "id": "c3",
+    "email": "duplicate@example.test",
+    "amount": 99
+  },
+  {
+    "id": "d4",
+    "email": " Dee@Example.test ",
+    "amount": 4
+  }
+]

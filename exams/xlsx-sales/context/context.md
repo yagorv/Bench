@@ -1,0 +1,2 @@
+# Fixed task context
+Source is `inputs/sales.csv`, with columns date, product, quantity, unit_price. Create one transaction row per source row, preserving order. Add revenue = quantity × unit_price. Use two sheets, `Transactions` then `Summary`. Freeze the top header row on Transactions. Summary cell B2 must contain a SUM formula over Transactions!E2:E4. The evaluator checks all required headers and source fields, revenues, formula, sheet names, and frozen header.

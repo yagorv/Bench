@@ -1,6 +1,6 @@
 # Benchmark catalog
 
-The runnable tasks and all of their input files are versioned under `benchmarks/tasks/`. List the current suite with `python3 -m agentbench list`. Every run receives the same task prompt and input bytes; each attempt starts from a new workspace. The evaluator is part of this repository and runs locally after the agent exits.
+Ready-to-share, self-contained exam folders are versioned under [`exams/`](../exams/). Give an agent the selected folder as-is. The source tasks and local evaluators are kept separately under `benchmarks/tasks/`.
 
 ## Long-form battery
 
