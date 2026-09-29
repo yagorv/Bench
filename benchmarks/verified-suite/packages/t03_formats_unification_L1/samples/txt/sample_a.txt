@@ -1,0 +1,22 @@
+INVOICE
+total:  71301.58 Swiss Franc
+invoice no:    INV-2025-0001
+goods:  Pièces détachées
+customer : Cyberdyne Textiles SARL
+from: Levante   Textiles Ltd
+discount rate: 1.25
+CUSTOMER ID :   US-325106106
+issue date : 2025-10-16
+net : 72204.13 Swiss Franc
+=================
+INVOICE
+Description :   Gestión de residuos
+Date of Issue : 2025-05-06
+SUPPLIER VAT ID:    GB758703571
+invoice ref:   INV-2023-0002
+Customer ID:  DE538705214
+Bill To: Hooli Systems S.A.
+seller: Levante Labs & Co, Ltd   
+Subtotal:  €5251.96
+INVOICE TOTAL : €5704.94
+payment due date : 2025-06-13

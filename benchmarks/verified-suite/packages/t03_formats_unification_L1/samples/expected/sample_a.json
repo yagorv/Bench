@@ -1,0 +1,34 @@
+[
+  {
+    "PROGRAM": null,
+    "SELLER ID": null,
+    "SELLER": "Levante Textiles Ltd",
+    "DEBTOR ID": "US-325106106",
+    "DEBTOR": "Cyberdyne Textiles SARL",
+    "INVOICE REF": "INV-2025-0001",
+    "GOODS SERVICES": "Pièces détachées",
+    "TOTAL INVOICE AMOUNT": 71301.58,
+    "TOTAL NET VALUE": 72204.13,
+    "DISCOUNT PERCENTAGE": 1.25,
+    "CURRENCY": "CHF",
+    "ISSUE DATE": "2025-10-16",
+    "DUE DATE": null,
+    "MARGIN": null
+  },
+  {
+    "PROGRAM": null,
+    "SELLER ID": "GB758703571",
+    "SELLER": "Levante Labs & Co, Ltd",
+    "DEBTOR ID": "DE538705214",
+    "DEBTOR": "Hooli Systems S.A.",
+    "INVOICE REF": "INV-2023-0002",
+    "GOODS SERVICES": "Gestión de residuos",
+    "TOTAL INVOICE AMOUNT": 5704.94,
+    "TOTAL NET VALUE": 5251.96,
+    "DISCOUNT PERCENTAGE": null,
+    "CURRENCY": "EUR",
+    "ISSUE DATE": "2025-05-06",
+    "DUE DATE": "2025-06-13",
+    "MARGIN": null
+  }
+]

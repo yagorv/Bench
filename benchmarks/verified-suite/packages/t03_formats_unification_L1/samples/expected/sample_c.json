@@ -1,0 +1,34 @@
+[
+  {
+    "PROGRAM": null,
+    "SELLER ID": "FR30627318192",
+    "SELLER": "Initech Supplies S.A.",
+    "DEBTOR ID": null,
+    "DEBTOR": "Tyrell Textiles Ltd",
+    "INVOICE REF": "FR-2024-005",
+    "GOODS SERVICES": null,
+    "TOTAL INVOICE AMOUNT": 10102.12,
+    "TOTAL NET VALUE": 9300,
+    "DISCOUNT PERCENTAGE": 1.25,
+    "CURRENCY": "EUR",
+    "ISSUE DATE": "2024-05-14",
+    "DUE DATE": null,
+    "MARGIN": null
+  },
+  {
+    "PROGRAM": null,
+    "SELLER ID": "D97001611",
+    "SELLER": "Núñez Foods & Co, Ltd",
+    "DEBTOR ID": "FR65494788326",
+    "DEBTOR": "Andaluza Trading GmbH",
+    "INVOICE REF": "FR-2025-006",
+    "GOODS SERVICES": null,
+    "TOTAL INVOICE AMOUNT": 1440,
+    "TOTAL NET VALUE": 1600,
+    "DISCOUNT PERCENTAGE": 10,
+    "CURRENCY": "CHF",
+    "ISSUE DATE": "2024-03-28",
+    "DUE DATE": "2024-06-01",
+    "MARGIN": null
+  }
+]

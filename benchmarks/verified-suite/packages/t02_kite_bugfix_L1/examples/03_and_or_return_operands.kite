@@ -1,0 +1,4 @@
+print(0 or "x");
+print(1 and 2);
+print("" and 3);
+print(not []);

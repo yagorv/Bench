@@ -6,6 +6,8 @@ Cada prueba es un **`TASK.md` autocontenido** (requisitos al estilo *User Story 
 
 **Requisitos:** Python 3.10+. Nada más (ni pip, ni red, ni servicios). Para *evaluar* código generado por una IA, hazlo en un contenedor o VM: el verificador lo ejecuta.
 
+**¿Solo quieres darle una tarea a un agente?** Usa los [paquetes congelados](packages/README.md): cada carpeta de `packages/` es un `TASK.md` autocontenido más sus datos, lista para copiar y entregar, y `bench.py score` la puntúa.
+
 ## ¿Qué funciona ya? — 5 pruebas de punta a punta
 
 | Id | Prueba | Tipo | Niveles | Qué mide |

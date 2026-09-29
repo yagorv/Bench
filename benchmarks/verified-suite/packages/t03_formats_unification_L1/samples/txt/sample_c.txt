@@ -1,0 +1,21 @@
+FACTURE
+Montant HT .............. 9 300,00 €
+Numéro de facture ................ FR-2024-005
+Acheteur ................. Tyrell Textiles Ltd
+Remise ...... 1,25 %
+Total TTC ................... 10 102,12 €
+Date d'émission .............. 14 mai 2024
+Fournisseur ................. Initech Supplies S.A.
+TVA fournisseur ................ FR30627318192
+========================
+FACTURE
+Acheteur .... Andaluza Trading GmbH
+Remise .... 10 %
+TVA client ..... FR65494788326
+Date de facture .............. 28.03.2024
+Fournisseur .......... Núñez Foods & Co, Ltd
+Total HT ...... 1600,00 CHF
+Échéance ..... 01.06.2024
+Numéro de facture ........... FR-2025-006
+Total TTC ............... 1440,00 CHF
+TVA fournisseur ......... D97001611

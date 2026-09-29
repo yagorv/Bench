@@ -1,0 +1,8 @@
+print("ab" * 3);
+print(3 * "z");
+print("a" * -1);
+print(len("héllo"));
+let s = "hello";
+print(s[-1]);
+print(substr(s, 1, 100));
+print(split("a,b,,c", ","));

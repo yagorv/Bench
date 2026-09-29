@@ -1,0 +1,3 @@
+# Los paquetes contienen ficheros .csv/.tsv de muestra: deben versionarse pese a la regla global.
+!*.csv
+!*.tsv
