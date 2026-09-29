@@ -1,8 +1,8 @@
 # Agent Benchmark
 
-An open, reproducible benchmark for comparing AI coding agents on data engineering and Android software tasks.
+An open, reproducible benchmark for comparing AI agents across data engineering, Android engineering, and one-shot artifact generation tasks.
 
-The benchmark records task success, elapsed time, resource use, tool activity, and cost when the agent or provider exposes it. It fixes the task inputs and evaluation rules; agent outputs can still vary, so official comparisons should include repeated runs.
+Each task requires the agent to include a usage receipt with its final answer. The runner records timing and resource use independently and uses provider telemetry for billed cost when available. Agent-reported values and measured values are stored separately; unavailable usage must be marked explicitly rather than guessed. The benchmark fixes task inputs and evaluation rules, while repeated runs capture variation in agent outputs.
 
 ## Repository layout
 
@@ -12,7 +12,7 @@ The benchmark records task success, elapsed time, resource use, tool activity, a
 - `benchmarks/android/`: initial Android task definitions.
 - `benchmarks/one-shot/`: single-prompt artifact generation tasks across text, image, video, and spreadsheets.
 - `docs/`: run protocol and scoring rules.
-- `src/agentbench/`: benchmark utilities.
+- `docs/run-receipt.schema.json`: required agent-reported usage receipt format.
 
 ## Generate a large dataset
 
