@@ -26,7 +26,6 @@ TASKS_DIR = ROOT / "benchmarks" / "tasks"
 RESULTS_DIR = ROOT / "results" / "runs"
 CONFIG_DIR = ROOT / ".agentbench"
 CONFIG_PATH = CONFIG_DIR / "agents.json"
-RECEIPT_NAME = "run-receipt.json"
 
 
 class BenchError(Exception):
@@ -273,14 +272,12 @@ def _run_process(profile: dict[str, Any], prompt: str, workspace: Path,
         adapter_metrics = read_json(metrics_path)
         metrics.update(adapter_metrics)
         metrics["source"] = adapter_metrics.get("source", "adapter")
-    reported = _read_agent_receipt(submission / RECEIPT_NAME, task_id)
     return {
         "command": actual_command,
         "exit_code": return_code,
         "timed_out": timed_out,
         "wall_time_ms": elapsed,
         "usage": metrics,
-        "agent_receipt": reported,
     }
 
 
@@ -327,46 +324,6 @@ def _usage_from_json(value: dict[str, Any], parser: str) -> dict[str, Any]:
         "session_id": value.get("session_id"),
         "source": "provider_cli_json" if parser == "claude-code-json" else "agent_cli_json",
     }
-
-
-def _read_agent_receipt(path: Path, task_id: str) -> dict[str, Any]:
-    if not path.exists():
-        return {"valid": False, "error": "receipt file missing"}
-    try:
-        receipt = read_json(path)
-        reported = receipt["agent_reported"]
-        required = {"model", "input_tokens", "output_tokens", "cached_input_tokens", "model_calls",
-                    "tool_calls", "wall_time_ms", "cost", "cost_currency", "cost_basis"}
-        if receipt.get("schema_version") != 1 or receipt.get("task_id") != task_id or not required.issubset(reported):
-            raise ValueError("receipt does not satisfy schema v1")
-        if set(reported) != required:
-            raise ValueError("agent_reported contains unexpected fields")
-        if reported["model"] is not None and not isinstance(reported["model"], str):
-            raise ValueError("model must be a string or null")
-        if reported["cost_currency"] is not None and not isinstance(reported["cost_currency"], str):
-            raise ValueError("cost_currency must be a string or null")
-        if reported["cost_basis"] not in {"provider_reported", "rate_card_estimate", "subscription", "unknown"}:
-            raise ValueError("invalid cost_basis")
-        for field in required - {"model", "cost_currency", "cost_basis"}:
-            value = reported[field]
-            if value is not None and (not isinstance(value, (int, float)) or not math.isfinite(value) or value < 0):
-                raise ValueError(f"{field} must be a non-negative number or null")
-            if field != "cost" and value is not None and not isinstance(value, int):
-                raise ValueError(f"{field} must be an integer or null")
-        if not isinstance(receipt.get("unavailable_fields"), list):
-            raise ValueError("unavailable_fields must be an array")
-        for item in receipt["unavailable_fields"]:
-            if not isinstance(item, dict) or set(item) != {"field", "reason"} or not all(isinstance(item[k], str) for k in item):
-                raise ValueError("each unavailable field needs string field and reason values")
-        if receipt.get("status") not in {"completed", "partial", "failed", "timed_out"}:
-            raise ValueError("invalid status")
-        if set(receipt) - {"schema_version", "task_id", "status", "agent_reported", "unavailable_fields", "notes"}:
-            raise ValueError("receipt contains unexpected fields")
-        if "notes" in receipt and not isinstance(receipt["notes"], str):
-            raise ValueError("notes must be a string")
-        return {"valid": True, "data": receipt}
-    except (ValueError, KeyError, TypeError, BenchError) as exc:
-        return {"valid": False, "error": str(exc)}
 
 
 def evaluate(task: dict[str, Any], task_dir: Path, workspace: Path) -> dict[str, Any]:
@@ -748,8 +705,7 @@ def _run_one(profile: dict[str, Any], task: dict[str, Any], task_dir: Path,
             "seed": seed, "rows": rows if task["id"] == "data.clean-large-csv.v1" else None,
             "environment": {"python": sys.version.split()[0], "platform": sys.platform},
             "process": process, "evaluation": evaluation,
-            "receipt_valid": process["agent_receipt"]["valid"],
-            "passed": bool(evaluation["passed"] and process["agent_receipt"]["valid"]),
+            "passed": bool(evaluation["passed"]),
         }
         write_json(run_dir / "run.json", result)
         return result
@@ -844,7 +800,6 @@ def cmd_evaluate_manual(args: argparse.Namespace) -> int:
     task, task_dir = tasks[pending["task_id"]]
     workspace = run_dir / "workspace"
     evaluation = evaluate(task, task_dir, workspace)
-    receipt = _read_agent_receipt(workspace / "submission" / RECEIPT_NAME, task["id"])
     usage = {
         "provider_cost": args.provider_cost, "currency": args.currency,
         "input_tokens": args.input_tokens, "output_tokens": args.output_tokens,
@@ -853,10 +808,9 @@ def cmd_evaluate_manual(args: argparse.Namespace) -> int:
         "source": args.usage_source if any(x is not None for x in (args.provider_cost, args.input_tokens, args.output_tokens)) else "unavailable",
     }
     process = {"command": ["manual"], "exit_code": 0, "timed_out": False,
-               "wall_time_ms": args.wall_time_ms, "usage": usage, "agent_receipt": receipt}
+               "wall_time_ms": args.wall_time_ms, "usage": usage}
     result = {**pending, "finished_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-              "process": process, "evaluation": evaluation, "receipt_valid": receipt["valid"],
-              "passed": bool(evaluation["passed"] and receipt["valid"])}
+              "process": process, "evaluation": evaluation, "passed": bool(evaluation["passed"])}
     write_json(run_dir / "run.json", result)
     pending_path.unlink()
     print(f"{'PASS' if result['passed'] else 'FAIL'} {args.run_id}: {evaluation['details'] or 'all checks passed'}")
@@ -883,13 +837,12 @@ def cmd_report(_: argparse.Namespace) -> int:
             "task_id": run.get("task_id"),
             "run_id": run.get("run_id", path.parent.name),
             "passed": run.get("passed", False),
-            "receipt_valid": run.get("receipt_valid", False),
             "evaluator": run.get("evaluation", {}).get("type"),
             "artifacts": ";".join(p.relative_to(ROOT).as_posix() for p in artifacts),
         })
     output = ROOT / "results" / "quality-summary.csv"
     output.parent.mkdir(parents=True, exist_ok=True)
-    columns = ["agent", "task_id", "run_id", "passed", "receipt_valid", "evaluator", "artifacts"]
+    columns = ["agent", "task_id", "run_id", "passed", "evaluator", "artifacts"]
     with output.open("w", newline="", encoding="utf-8") as stream:
         writer = csv.DictWriter(stream, fieldnames=columns)
         writer.writeheader()
@@ -919,8 +872,6 @@ def cmd_review(args: argparse.Namespace) -> int:
         metrics: list[str] = []
         if isinstance(wall, (int, float)):
             metrics.append(f"{wall / 1000:.1f} s")
-        receipt = "valid receipt" if run.get("receipt_valid") else "receipt missing/invalid"
-        metrics.append(receipt)
         details = run.get("evaluation", {}).get("details", [])
         details_html = ""
         if details:

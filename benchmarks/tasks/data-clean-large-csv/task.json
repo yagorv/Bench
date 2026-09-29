@@ -22,8 +22,7 @@
   "output_files": [
     "submission/solution.py",
     "submission/cleaned.csv",
-    "submission/summary.json",
-    "submission/run-receipt.json"
+    "submission/summary.json"
   ],
   "generator": {
     "id": "synthetic-events-v1",

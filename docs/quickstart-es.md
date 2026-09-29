@@ -41,7 +41,7 @@ python -m agentbench prepare --task review.python-security-defect.v1 --agent "No
 
 1. Abre una conversación o sesión nueva y sube `task-package.zip`. Si la herramienta no acepta ZIP, descomprímelo y adjunta todos sus archivos.
 2. Copia el `prompt.md` exacto impreso por el comando y envíalo. Ese mismo prompt también está dentro del ZIP.
-3. Descarga la respuesta y coloca los archivos pedidos en la carpeta `submission/` que imprime el comando. Incluye `run-receipt.json`.
+3. Descarga la respuesta y coloca los archivos pedidos por el examen en la carpeta `submission/` que imprime el comando.
 4. Ejecuta el evaluador y abre la galería de artefactos:
 
 ```sh

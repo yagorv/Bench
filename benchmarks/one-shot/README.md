@@ -1,12 +1,12 @@
-# One-shot artifact tasks
+# Ideas de exámenes one-shot
 
-This suite compares agents on a fixed prompt with no follow-up clarification. Every task definition records the prompt, requested artifact, run limits, capability requirements, and evaluator type. Every final response must include a run receipt following [the response contract](response-contract.md). Preserve generated artifacts for audit.
+Esta carpeta conserva diseños preliminares. Las cápsulas Markdown listas para entregar están en [`../tasks/`](../tasks/README.md). En cada ejecución entrega el `prompt.md` y sus archivos de contexto o entrada; el agente devuelve el artefacto solicitado y tú revisas calidad, duración y coste desde la herramienta usada.
 
-| ID | Artifact | Evaluation |
+Los diseños de aquí aún no tienen evaluador integrado. No los uses como si fueran exámenes ejecutables hasta que su estado cambie de `draft`.
+
+| ID | Artefacto | Revisión prevista |
 |---|---|---|
-| `oneshot.ascii-mona-lisa.v1` | ASCII rendering | Exact output checks plus image-to-glyph similarity |
-| `oneshot.image-mona-lisa.v1` | Image | Validity and perceptual / blinded human scoring |
-| `oneshot.video-mona-lisa.v1` | Short video | Encoding, duration, frame sampling, temporal and human scoring |
-| `oneshot.xlsx-sales-report.v1` | Excel workbook | Cell, formula, type, sheet, and formatting assertions |
-
-Do not combine capability-mismatched results into the same leaderboard. A text-only agent and an agent with image generation can appear in separate capability tracks, with their available tools stated on every result.
+| `oneshot.ascii-mona-lisa.v1` | Retrato ASCII | Límites del texto y revisión visual |
+| `oneshot.image-mona-lisa.v1` | Imagen | Formato, dimensiones y revisión humana |
+| `oneshot.video-mona-lisa.v1` | Vídeo corto | Decodificación, duración y revisión humana |
+| `oneshot.xlsx-sales-report.v1` | Libro Excel | Celdas, fórmulas y formato |

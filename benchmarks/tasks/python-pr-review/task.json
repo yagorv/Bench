@@ -32,8 +32,7 @@
   "starter_files": [],
   "generated_input_files": [],
   "output_files": [
-    "submission/findings.json",
-    "submission/run-receipt.json"
+    "submission/findings.json"
   ],
   "estimated_minutes": {
     "min": 10,

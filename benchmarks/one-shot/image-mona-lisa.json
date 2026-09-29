@@ -5,15 +5,34 @@
   "title": "Generate a Mona Lisa inspired portrait",
   "status": "draft",
   "turns": 1,
-  "response_contract": "docs/run-receipt.schema.json",
+  "response_contract": "response-contract.md",
   "prompt": "Generate a portrait inspired by the Mona Lisa: a seated Renaissance-era woman, folded hands, a hazy landscape behind her, soft glazing and muted earth tones. Deliver one image and no text.",
   "input_assets": [],
-  "generation": {"width": 1024, "height": 1024, "format": "png", "seed": null, "seed_note": "Record if supported; otherwise unavailable."},
-  "output": {"path": "mona-lisa.png", "media_type": "image/png"},
+  "generation": {
+    "width": 1024,
+    "height": 1024,
+    "format": "png",
+    "seed": null,
+    "seed_note": "Record if supported; otherwise unavailable."
+  },
+  "output": {
+    "path": "mona-lisa.png",
+    "media_type": "image/png"
+  },
   "evaluation": {
-    "exact": ["file decodes", "dimensions match requested settings"],
-    "perceptual": ["prompt adherence", "composition", "visual quality"],
+    "exact": [
+      "file decodes",
+      "dimensions match requested settings"
+    ],
+    "perceptual": [
+      "prompt adherence",
+      "composition",
+      "visual quality"
+    ],
     "human_review": "blind rubric, each dimension scored 1-5"
   },
-  "limits": {"wall_time_seconds": 300, "network": "record capability track"}
+  "limits": {
+    "wall_time_seconds": 300,
+    "network": "record capability track"
+  }
 }

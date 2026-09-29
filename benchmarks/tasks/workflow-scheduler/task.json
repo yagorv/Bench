@@ -26,8 +26,7 @@
   ],
   "generated_input_files": [],
   "output_files": [
-    "submission/schedules.json",
-    "submission/run-receipt.json"
+    "submission/schedules.json"
   ],
   "evaluator": {
     "type": "python-unittest",

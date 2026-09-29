@@ -5,15 +5,36 @@
   "title": "Generate a short moving portrait",
   "status": "draft",
   "turns": 1,
-  "response_contract": "docs/run-receipt.schema.json",
+  "response_contract": "response-contract.md",
   "prompt": "Create a 5-second cinematic video inspired by the Mona Lisa portrait. The subject remains seated with folded hands while gently turning her gaze toward the viewer; the distant landscape has subtle atmospheric motion. Keep the framing stable. Deliver one video and no text.",
   "input_assets": [],
-  "generation": {"duration_seconds": 5, "resolution": "720p", "fps": 24, "seed": null, "seed_note": "Record if supported; otherwise unavailable."},
-  "output": {"path": "mona-lisa.mp4", "media_type": "video/mp4"},
+  "generation": {
+    "duration_seconds": 5,
+    "resolution": "720p",
+    "fps": 24,
+    "seed": null,
+    "seed_note": "Record if supported; otherwise unavailable."
+  },
+  "output": {
+    "path": "mona-lisa.mp4",
+    "media_type": "video/mp4"
+  },
   "evaluation": {
-    "exact": ["file decodes", "duration within 0.25 seconds", "resolution and frame rate recorded"],
-    "perceptual": ["prompt adherence", "temporal consistency", "motion quality", "visual quality"],
+    "exact": [
+      "file decodes",
+      "duration within 0.25 seconds",
+      "resolution and frame rate recorded"
+    ],
+    "perceptual": [
+      "prompt adherence",
+      "temporal consistency",
+      "motion quality",
+      "visual quality"
+    ],
     "human_review": "blind rubric, each dimension scored 1-5"
   },
-  "limits": {"wall_time_seconds": 600, "network": "record capability track"}
+  "limits": {
+    "wall_time_seconds": 600,
+    "network": "record capability track"
+  }
 }

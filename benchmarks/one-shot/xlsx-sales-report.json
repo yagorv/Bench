@@ -5,14 +5,28 @@
   "title": "Create a formatted quarterly sales workbook",
   "status": "draft",
   "turns": 1,
-  "response_contract": "docs/run-receipt.schema.json",
+  "response_contract": "response-contract.md",
   "prompt": "Create an Excel workbook named quarterly-sales.xlsx with sheets named Transactions and Summary. Transactions must include transaction_id, date, region, product, units, unit_price, and revenue. Summary must show revenue by region and product, quarterly total revenue, and the top-selling product by units. Use formulas for calculated values, a header row, currency formatting, and freeze the header row. Use the supplied source data exactly once per transaction.",
-  "input_assets": ["fixtures/quarterly-sales.csv"],
-  "output": {"path": "quarterly-sales.xlsx", "media_type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"},
+  "input_assets": [
+    "fixtures/quarterly-sales.csv"
+  ],
+  "output": {
+    "path": "quarterly-sales.xlsx",
+    "media_type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+  },
   "evaluation": {
-    "exact": ["required sheets and columns", "all source rows represented once", "formula results match reference", "summary totals match reference", "freeze panes and number formats satisfy contract"],
+    "exact": [
+      "required sheets and columns",
+      "all source rows represented once",
+      "formula results match reference",
+      "summary totals match reference",
+      "freeze panes and number formats satisfy contract"
+    ],
     "human_review": "optional blinded 1-5 readability rubric"
   },
-  "limits": {"wall_time_seconds": 300, "network": "disabled"},
+  "limits": {
+    "wall_time_seconds": 300,
+    "network": "disabled"
+  },
   "fixture_status": "CSV fixture and hidden workbook evaluator are to be added before this task is ready."
 }

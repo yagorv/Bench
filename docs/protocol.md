@@ -9,7 +9,7 @@ Never combine results from these modes into one ranking.
 
 ## One-shot artifact tasks
 
-One-shot tasks give each agent one fixed prompt and require a deliverable without iterative user feedback. Freeze the prompt, attachments, output format, dimensions, duration or sheet schema, and deadline. Require the standard run receipt in the final answer in addition to the artifact. Record whether the agent had access to image, video, spreadsheet, or code tools; compare agents with the same capability set in the controlled track and report native capabilities separately.
+One-shot tasks give each agent one fixed Markdown exam and require a deliverable without iterative user feedback. Freeze the prompt, attachments, output format, dimensions, duration or sheet schema, and deadline. Ask for the artifact and its saved path; do not ask the agent to estimate cost. Record whether it had access to image, video, spreadsheet, or code tools, then review the output yourself.
 
 Use exact deterministic checks for structured artifacts: workbook sheet names, cell values, formulas, data types, and required formatting. For images and video, report machine-scored measures such as dimensions, duration, valid encoding, and task-specific similarity metrics separately from blinded human ratings. Do not present a perceptual score as an exact correctness check. Retain the raw artifact and evaluator version for every run.
 
@@ -28,13 +28,13 @@ Every task package must be self-contained: its prompt, declared `context_files`,
 - provider-reported cost, currency, rate card date, token counts and tool calls, when available;
 - evaluator version, public and hidden test results, and final score.
 
-Every agent must also return a final machine-readable run receipt as part of its answer, using [`run-receipt.schema.json`](run-receipt.schema.json). Require this even when the task asks for a file or other artifact. The agent must report all usage it can see and use `null` plus an explanation for unavailable values; it must never guess. The harness stores this agent-reported receipt separately from measurements collected from the process and authoritative provider usage or billing telemetry. Raw run records keep sources separate. The benchmark summary does not aggregate or publish cost; compare actual usage in each provider session. If a product exposes no authoritative cost, treat it as unavailable rather than treating an agent estimate as a bill.
+The Markdown exam asks for the output artifact only. Measure elapsed time and cost in the product's own session or billing panel. The optional runner stores output files and can apply deterministic checks; its summary does not publish costs.
 
 The long-form battery is intended to require several minutes of multi-step work per task. `estimated_minutes` in each task manifest is a design estimate only. Do not insert artificial waits to force a duration; record the actual agent wall time. For the large CSV task, the scorecard also records the generated solution's execution time separately from the agent's elapsed time. For tasks with hidden tests, grader execution time is recorded separately as well.
 
-Capture prompt and completion tokens, cached tokens, model/tool/API call counts, wall time, and provider-reported cost or usage with its unit whenever exposed. The current runner records wall time and provider usage; it does not yet measure isolated CPU time or peak memory, so do not publish those as harness measurements. Review cost per attempt directly in the provider account. Keep subscription pricing separate from marginal API cost. The benchmark does not calculate cost per task or cost per successful task.
+If you choose to record usage, use the product's reported units and keep subscription pricing separate from marginal per-task charges. The optional runner records process wall time but does not measure isolated CPU time or peak memory. The benchmark does not calculate or publish cost per task.
 
-Do not infer missing token usage or cost. Mark unavailable fields as `null` and state why. Do not compare provider subscription fees as per-task API cost.
+Do not infer missing cost. If the provider does not expose per-task usage, leave it to manual qualitative comparison rather than guessing.
 
 ## Repeated runs
 

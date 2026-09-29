@@ -20,8 +20,7 @@
   "starter_files": [],
   "generated_input_files": [],
   "output_files": [
-    "submission/jingle.wav",
-    "submission/run-receipt.json"
+    "submission/jingle.wav"
   ],
   "evaluator": {
     "type": "wav-melody",

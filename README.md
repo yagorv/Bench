@@ -1,22 +1,20 @@
-# Agent Benchmark
+# Agent Exam Capsules
 
-Portable benchmark runner for comparing AI agents and one shot artifact tools. Every task is a self-contained package: fixed prompt, declared context files, inputs, optional starter project, and output contract. Each attempt starts from the same package and seed. The runner saves artifacts, logs, timings, provider usage when available, and the agent's separately reported usage receipt.
+Portable Markdown exams for comparing AI agents and artifact generation tools. Each capsule has a fixed `prompt.md`, context, inputs or starter files, and a clear output contract. Give the same Markdown and attachments to any product, collect its output, and review quality, elapsed time, and cost yourself. The optional local runner can package inputs and apply exact checks; you do not need it to ask an agent to take an exam.
 
 ## Start here
 
 Para instrucciones paso a paso en español, consulta [la guía rápida](docs/quickstart-es.md).
-Para entregar directamente las pruebas a distintas herramientas, sigue [las instrucciones de los exámenes](benchmarks/tasks/README.md).
+Para elegir y entregar directamente los exámenes, sigue [las instrucciones de las cápsulas Markdown](benchmarks/tasks/README.md).
 
-Requires Python 3.11 or newer. The runner itself uses only the Python standard library.
+Reading and handing off an exam needs no Python. The optional package/evaluation runner requires Python 3.11 or newer and uses only the standard library.
 
 ```sh
 git clone https://github.com/yagorv/Bench.git
 cd Bench
-python3 -m agentbench list
-python3 -m agentbench init
 ```
 
-Edit `.agentbench/agents.json` to add local command profiles. It is ignored by Git, so credentials and machine-specific settings stay local. The template includes Claude Code and Codex CLI examples; install and authenticate them separately. Any other local CLI can be added as another command profile. For products used through a web/desktop interface, use the manual package flow below.
+Para el flujo principal no configures ninguna CLI: abre una tarea en `benchmarks/tasks/`, entrega su `prompt.md` junto con los archivos de contexto y entrada declarados en `task.json`, y recoge los archivos solicitados en `output_files`. Las instrucciones completas están en [la guía de cápsulas](benchmarks/tasks/README.md). La CLI que sigue es opcional, para automatizar ejecuciones o comprobaciones exactas.
 
 Run one long-form task five times, or run the complete long-form battery:
 
@@ -27,7 +25,7 @@ python3 -m agentbench report
 python3 -m agentbench review --open
 ```
 
-`results/runs/` contains each attempt, its exact prompt, inputs, logs, generated files, usage receipt, and `run.json`. `agentbench report` writes a quality-only CSV with pass/fail and artifact paths. `agentbench review --open` opens a local gallery with image, video, and audio previews and readable text outputs. Cost is not aggregated; compare it manually in each provider session.
+`results/runs/` preserves generated files and exact inputs when using the optional runner. `agentbench report` writes a quality-only CSV with pass/fail and artifact paths. `agentbench review --open` opens a local gallery with image, video, and audio previews and readable text outputs. You can add personal ratings and notes, then download them as JSON. No cost report is generated.
 
 ## Use a web or desktop AI tool
 
@@ -37,7 +35,7 @@ This works for tools that do not offer a compatible local CLI. It creates the sa
 python3 -m agentbench prepare --task data.clean-large-csv.v1 --agent "Product and model name" --rows 1000000 --seed 20260929
 ```
 
-Upload the printed `task-package.zip` to a **new conversation/session** in the AI tool (or extract it and attach all contained files if ZIP upload is unsupported). Send the exact `prompt.md` printed by the command and ask it to return every required file from `submission/`, including `run-receipt.json`. Copy its returned files into the matching local `results/runs/<run-id>/workspace/submission/` folder. Then evaluate and add provider usage from the product's session details:
+Upload the printed `task-package.zip` to a **new conversation/session** in the AI tool (or extract it and attach all contained files if ZIP upload is unsupported). Send the exact `prompt.md` printed by the command and ask it to return every file listed in `output_files`. Copy the outputs into the matching local `results/runs/<run-id>/workspace/submission/` folder and evaluate them:
 
 ```sh
 python3 -m agentbench evaluate --run-id "ID printed by prepare"
@@ -45,7 +43,7 @@ python3 -m agentbench report
 python3 -m agentbench review --open
 ```
 
-Repeat `prepare` for each attempt using the same task, row count, seed, tool settings, and model version. Review each generated output in the gallery; assess cost manually in the provider session. The optional receipt is saved with the run.
+Prepare one capsule per agent with identical task, `--rows`, and `--seed` settings. The generated inputs will have matching hashes. Review each output in the gallery and assess cost manually in the provider session.
 
 ## Runnable task set
 
@@ -71,7 +69,7 @@ It records results in its own `results.jsonl` (score, optional provider telemetr
 
 ## Extending it
 
-Add a task directory under `benchmarks/tasks/<slug>/` with `task.json`, `prompt.md`, at least one declared file under `context/`, optional `inputs/` and `starter/`, and a hidden `expected.json`. Add an evaluator type in `agentbench/cli.py` if the current exact evaluators do not fit. The run receipt contract is [here](docs/run-receipt.schema.json), and the command adapter interface is [documented here](docs/adapters.md).
+Add a task directory under `benchmarks/tasks/<slug>/` with `task.json`, `prompt.md`, context and input files, and any starter project needed. Keep hidden evaluator material outside the files given to the agent. Add an evaluator type in `agentbench/cli.py` when exact local checks help.
 
 ## Existing fixtures
 

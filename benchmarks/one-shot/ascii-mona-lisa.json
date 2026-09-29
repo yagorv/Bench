@@ -5,14 +5,27 @@
   "title": "Render the Mona Lisa as ASCII art",
   "status": "draft",
   "turns": 1,
-  "response_contract": "docs/run-receipt.schema.json",
+  "response_contract": "response-contract.md",
   "prompt": "Create a recognizable ASCII-art rendering of the Mona Lisa. Output only the artwork in a plain-text file named mona-lisa.txt. Use at most 100 columns and 60 rows.",
   "input_assets": [],
-  "output": {"path": "mona-lisa.txt", "media_type": "text/plain", "max_bytes": 12000},
+  "output": {
+    "path": "mona-lisa.txt",
+    "media_type": "text/plain",
+    "max_bytes": 12000
+  },
   "evaluation": {
-    "exact": ["file exists", "within character and dimension limits", "contains printable ASCII only"],
-    "perceptual": ["silhouette and face-region similarity to a fixed reference rendering"],
+    "exact": [
+      "file exists",
+      "within character and dimension limits",
+      "contains printable ASCII only"
+    ],
+    "perceptual": [
+      "silhouette and face-region similarity to a fixed reference rendering"
+    ],
     "human_review": "blind 1-5 recognizability and craftsmanship rubric"
   },
-  "limits": {"wall_time_seconds": 180, "network": "record capability track"}
+  "limits": {
+    "wall_time_seconds": 180,
+    "network": "record capability track"
+  }
 }

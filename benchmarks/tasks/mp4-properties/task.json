@@ -18,7 +18,6 @@
   "starter_files": [],
   "generated_input_files": [],
   "output_files": [
-    "submission/video.mp4",
-    "submission/run-receipt.json"
+    "submission/video.mp4"
   ]
 }

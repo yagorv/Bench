@@ -20,7 +20,6 @@
   "starter_files": [],
   "generated_input_files": [],
   "output_files": [
-    "submission/art.txt",
-    "submission/run-receipt.json"
+    "submission/art.txt"
   ]
 }

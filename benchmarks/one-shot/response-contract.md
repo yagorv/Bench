@@ -1,9 +1,5 @@
-# Required final answer contract
+# Entrega de un examen
 
-Every benchmark task, including artifact-generation tasks, requires the agent's final answer to include:
+Devuelve el artefacto pedido en el formato y la ruta especificados por el Markdown del examen. Si la interfaz no permite guardar un archivo, entrega su contenido en un bloque de código e indica el nombre de archivo correspondiente.
 
-1. The requested deliverable or its exact saved path.
-2. A JSON run receipt conforming to [`../../docs/run-receipt.schema.json`](../../docs/run-receipt.schema.json).
-3. A short result summary and any known limitations.
-
-The receipt is the agent's self-report. Agents must give `null` for metrics they cannot inspect and explain the limitation in `unavailable_fields`; they must not estimate from memory. The benchmark runner records process timing and usage independently, and provider telemetry is authoritative for billed cost when available. Scoreboards display these sources separately.
+No estimes ni incluyas costes en el artefacto. La persona que evalúa consulta tiempo y coste en los datos de la propia herramienta.

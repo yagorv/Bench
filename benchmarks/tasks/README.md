@@ -1,52 +1,41 @@
-# Ejecutar los exámenes con distintos agentes
+# Cápsulas de exámenes para agentes de IA
 
-Cada carpeta de tarea contiene un `prompt.md`: ese es el examen que se entrega al agente. El mismo directorio declara en `task.json` los archivos de contexto, entradas y punto de partida. No uses `catalog.md` como prompt; es solo el índice de tareas.
+Cada carpeta es una cápsula: `prompt.md` es el examen en Markdown y los archivos de `context/`, `inputs/` y `starter/` son el material que recibe el agente. Puedes usar Claude Code, Codex, Devin, ChatGPT, Gemini u otra herramienta que acepte texto y archivos. No hace falta conectar el agente al ejecutor de este repositorio.
 
-## Flujo recomendado para herramientas web o de escritorio
+## Ejecutar un examen manualmente
 
-Prepara una copia limpia del examen para cada ejecución:
+1. Elige una tarea en [el catálogo](../catalog.md). Abre su `prompt.md` y entrega ese texto sin editarlo.
+2. Adjunta los archivos indicados por `context_files`, `input_files` y `starter_files` en su `task.json`. Si la herramienta admite ZIP, puedes usar `python3 -m agentbench prepare --task ID --agent "nombre del agente"` para preparar una copia limpia.
+3. No adjuntes `expected.json` ni la carpeta `grader/`: contienen material reservado para comprobar la entrega.
+4. Pide que devuelva todos los archivos indicados por `output_files` en `task.json`. Para tareas de imagen, audio o vídeo, descarga el artefacto original, no solo una descripción o enlace.
+5. Repite con una sesión nueva y los mismos archivos, prompt, semilla, tamaño de datos y configuración para cada agente.
+6. Abre tú las salidas y compáralas. `python3 -m agentbench review --open` crea una galería local después de guardar los archivos de cada ejecución. Puedes dejar una valoración y notas por entrega. El coste y el tiempo los registras tú desde la herramienta usada.
 
-```sh
-python3 -m agentbench prepare --task data.clean-large-csv.v1 --agent "Nombre del producto y modelo" --rows 1000000 --seed 20260929
-```
+## Dataset CSV
 
-El comando crea `task-package.zip` y una copia exacta del `prompt.md`. El ZIP contiene el manifiesto, prompt, contexto, inputs y starter files; no incluye la respuesta de referencia del evaluador.
-
-1. Abre una sesión nueva en la herramienta que quieres medir.
-2. Sube el ZIP. Si esa herramienta no acepta ZIP, extráelo y adjunta todos los archivos que contiene.
-3. Envía el `prompt.md` exacto que imprimió el comando. No lo resumas ni lo adaptes entre productos.
-4. Descarga el artefacto que genere el agente y cópialo a `submission/` en la carpeta local del intento. Incluye `run-receipt.json`.
-5. Llama a `evaluate` para puntuar el resultado y abre la galería:
+La prueba `data.clean-large-csv.v1` genera de forma reproducible un CSV de un millón de filas por defecto. Prepara una ejecución por agente con los mismos valores de `--rows` y `--seed`; el generador produce los mismos bytes. Puedes confirmar que los hashes `input_sha256` de `pending.json` coinciden.
 
 ```sh
-python3 -m agentbench evaluate --run-id "ID impreso por prepare"
-python3 -m agentbench report
-python3 -m agentbench review --open
+python3 -m agentbench prepare --task data.clean-large-csv.v1 --agent "ronda-1" --rows 1000000 --seed 20260929
 ```
 
-El reporte automático resume calidad y rutas de artefactos, no costes. Revisa tú el coste en el panel del proveedor. La galería abre vistas previas y enlaces a todos los archivos producidos; puedes añadir notas y una valoración de 1 a 5 y descargar `human-review.json`.
+Cada ZIP contiene el prompt, contexto, datos y archivos de inicio, pero no el resultado esperado del evaluador. Usa una sesión nueva por agente.
 
-## Flujo para una CLI de agente
+## Cápsulas disponibles
 
-`python3 -m agentbench init` copia perfiles de ejemplo para Claude Code y Codex CLI. Configura los que tengas instalados y ejecuta el mismo ID, repeticiones, semilla y tamaño para cada agente:
+### Tareas largas
 
-```sh
-python3 -m agentbench run --agent claude-code --task data.clean-large-csv.v1 --repetitions 5 --rows 1000000 --seed 20260929
-python3 -m agentbench run --agent codex-cli --task data.clean-large-csv.v1 --repetitions 5 --rows 1000000 --seed 20260929
-python3 -m agentbench report
-python3 -m agentbench review --open
-```
+- `data.clean-large-csv.v1`: analizar y limpiar un CSV grande, conservando un resultado canónico y un resumen verificable.
+- `review.python-security-defect.v1`: revisar doce módulos y encontrar defectos sembrados sin falsos positivos.
+- `python.workflow-scheduler.v1`: construir un programa modular desde una especificación precisa de CLI, dependencias, concurrencia, reintentos y fallos.
 
-## Batería principal: tareas de varios minutos
+### Generación y calibración
 
-`--all` ejecuta solo estas tareas. Cada una combina varios pasos y se ha dimensionado para requerir varios minutos; los rangos de `task.json` son estimaciones. El tiempo real se registra y puede variar entre productos.
+- `oneshot.audio-jingle.v1`: crear un WAV de ocho segundos con una secuencia fija de dieciséis notas. El evaluador comprueba formato, duración y tono; tú puedes escucharlo.
+- `oneshot.mp4-artifact.v1`: producir un vídeo de ocho segundos a partir de una secuencia temporal concreta. El evaluador revisa el contenedor; tú revisas el contenido y la animación.
+- `oneshot.ascii-pgm.v1`: convertir una imagen de entrada a arte ASCII con una regla fija.
+- `oneshot.png-artifact.v1`: generar una ilustración PNG que puedes inspeccionar en la galería.
+- `oneshot.xlsx-sales-report.v1`: construir un libro Excel a partir de un CSV y revisar celdas, fórmulas y formato.
+- `json.normalize-records.v1` y `python.fix-tax-calculation.v1`: comprobaciones breves de salida estructurada y reparación de código.
 
-- `data.clean-large-csv.v1`: limpieza en streaming de un millón de filas por defecto, normalización, validación, deduplicación, ordenación y resumen exacto.
-- `review.python-security-defect.v1`: revisión de varios módulos con 12 defectos sembrados, sin falsos positivos.
-- `python.workflow-scheduler.v1`: implementación modular de CLI y planificador determinista, con dependencias, concurrencia, reintentos, fallos, omisiones, validación y pruebas ocultas generadas.
-
-## Calibración
-
-Las tareas cortas siguen disponibles con `--task` para comprobar formato y funcionamiento, pero no forman parte de `--all`: `json.normalize-records.v1`, `python.fix-tax-calculation.v1`, `oneshot.ascii-pgm.v1`, `oneshot.xlsx-sales-report.v1`, `oneshot.png-artifact.v1`, `oneshot.mp4-artifact.v1` y `oneshot.audio-jingle.v1`.
-
-Repite cada intento en una sesión limpia. Conserva modelo/versión, permisos, presupuesto de herramientas, límites, tamaño y semilla. Las tareas de imagen y vídeo solo tienen una comprobación técnica de archivo; su calidad visual no entra en el puntaje determinista actual.
+Las comprobaciones automáticas ayudan a detectar errores exactos; no sustituyen tu revisión visual o auditiva. El benchmark no genera una clasificación de costes.
