@@ -131,35 +131,11 @@ def _load_environment(env_spec: dict[str, str]) -> dict[str, str]:
     return resolved
 
 
-def _receipt_prompt(task_id: str) -> str:
-    return f"""
-Run receipt requirement (part of this same attempt):
-Write {RECEIPT_NAME} inside submission/ with this JSON shape:
-{{
-  \"schema_version\": 1,
-  \"task_id\": \"{task_id}\",
-  \"status\": \"completed\",\n  \"agent_reported\": {{
-    \"model\": null, \"input_tokens\": null, \"output_tokens\": null,
-    \"cached_input_tokens\": null, \"model_calls\": null, \"tool_calls\": null,
-    \"wall_time_ms\": null, \"cost\": null, \"cost_currency\": null,
-    \"cost_basis\": \"unknown\"
-  }},
-  \"unavailable_fields\": [{{\"field\": \"cost\", \"reason\": \"Not visible to this agent\"}}]
-}}
-Report usage you can actually inspect. Use null and explain why when unknown; never estimate or invent billed cost.
-Include the same receipt JSON in your final response, labeled BENCHMARK_RUN_RECEIPT, so a human can see the reported model, usage, and cost as well as the saved artifact.
-""".strip()
-
-
 def _task_prompt(task: dict[str, Any], task_dir: Path, workspace: Path) -> str:
     prompt_path = task_dir / "prompt.md"
     if not prompt_path.exists():
         raise BenchError(f"Task prompt missing: {prompt_path}")
-    prompt = prompt_path.read_text(encoding="utf-8")
-    return (prompt + "\n\n" + _receipt_prompt(task["id"]) + "\n\n" +
-            "Read every file listed in context_files in task.json; these are the fixed task context. "
-            "The current directory is the task workspace. Use relative paths. "
-            "Read inputs from inputs/ and write deliverables under submission/.\n")
+    return prompt_path.read_text(encoding="utf-8")
 
 
 def _sha256_files(paths: list[Path], relative_to: Path) -> str:
@@ -239,10 +215,10 @@ def _run_process(profile: dict[str, Any], prompt: str, workspace: Path,
     metrics_path = run_dir / "adapter-metrics.json"
     replacements = {
         "{workspace}": str(workspace), "{submission}": str(submission),
-        "{prompt_file}": str(run_dir / "prompt.txt"), "{run_dir}": str(run_dir),
+        "{prompt_file}": str(run_dir / "prompt.md"), "{run_dir}": str(run_dir),
         "{task_id}": task_id, "{metrics_file}": str(metrics_path), "{repo}": str(ROOT),
     }
-    (run_dir / "prompt.txt").write_text(prompt, encoding="utf-8")
+    (run_dir / "prompt.md").write_text(prompt, encoding="utf-8")
     actual_command = [arg.format(**{key.strip("{}"): value for key, value in replacements.items()}) for arg in command]
     env = os.environ.copy()
     env.update(_load_environment(profile.get("env", {})))
@@ -250,7 +226,7 @@ def _run_process(profile: dict[str, Any], prompt: str, workspace: Path,
         "AGENTBENCH_TASK_ID": task_id,
         "AGENTBENCH_WORKSPACE": str(workspace),
         "AGENTBENCH_SUBMISSION": str(submission),
-        "AGENTBENCH_PROMPT_FILE": str(run_dir / "prompt.txt"),
+        "AGENTBENCH_PROMPT_FILE": str(run_dir / "prompt.md"),
         "AGENTBENCH_METRICS_FILE": str(metrics_path),
     })
     timeout = int(profile.get("timeout_seconds", 900))
@@ -413,13 +389,16 @@ def evaluate(task: dict[str, Any], task_dir: Path, workspace: Path) -> dict[str,
             actual = read_json(output)
             found = actual.get("findings", [])
             expected_findings = expected if isinstance(expected, list) else [expected]
-            fields = ("rule_id", "path", "line", "severity")
+            fields = ("path", "line", "severity")
             expected_keys = [tuple(item.get(key) for key in fields) for item in expected_findings]
             found_keys = [tuple(item.get(key) for key in fields) for item in found if isinstance(item, dict)] if isinstance(found, list) else []
             passed = (len(found_keys) == len(found) == len(expected_keys) and
-                      len(set(found_keys)) == len(found_keys) and set(found_keys) == set(expected_keys))
+                      len(set(found_keys)) == len(found_keys) and set(found_keys) == set(expected_keys) and
+                      all(isinstance(item.get("rule_id"), str) and item["rule_id"].strip() and
+                          isinstance(item.get("explanation"), str) and item["explanation"].strip()
+                          for item in found if isinstance(item, dict)))
             if not passed:
-                details.append(f"Expected exactly {len(expected_keys)} seeded defects with matching rule, path, line, and severity; got {len(found_keys)} findings")
+                details.append(f"Expected exactly {len(expected_keys)} seeded defects with matching path, line, and severity; got {len(found_keys)} findings")
         except (BenchError, AttributeError, TypeError) as exc:
             details.append(f"Invalid findings JSON: {exc}")
     elif kind == "data-clean-csv":
@@ -743,8 +722,8 @@ def cmd_prepare(args: argparse.Namespace) -> int:
     run_dir.mkdir(parents=True, exist_ok=False)
     workspace = _prepare_workspace(task_dir, run_dir, task, args.rows, args.seed)
     prompt = _task_prompt(task, task_dir, workspace)
-    (run_dir / "prompt.txt").write_text(prompt, encoding="utf-8")
-    (workspace / "PROMPT.md").write_text(prompt, encoding="utf-8")
+    (run_dir / "prompt.md").write_text(prompt, encoding="utf-8")
+    (workspace / "prompt.md").write_text(prompt, encoding="utf-8")
     files = [p for p in workspace.rglob("*") if p.is_file()]
     input_hash = _workspace_input_hash(workspace)
     prompt_hash = __import__("hashlib").sha256(prompt.encode("utf-8")).hexdigest()
@@ -763,7 +742,7 @@ def cmd_prepare(args: argparse.Namespace) -> int:
             archive.write(path, path.relative_to(workspace).as_posix())
     print(f"Prepared {task['id']} for {args.agent}")
     print(f"Upload/extract this package for the agent: {package}")
-    print(f"Send the exact prompt in: {run_dir / 'prompt.txt'}")
+    print(f"Send the exact prompt in: {run_dir / 'prompt.md'}")
     print(f"After the run, put its requested files in: {workspace / 'submission'}")
     print(f"Run ID for evaluation: {run_id}")
     return 0

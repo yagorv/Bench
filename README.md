@@ -5,6 +5,7 @@ Portable benchmark runner for comparing AI agents and one shot artifact tools. E
 ## Start here
 
 Para instrucciones paso a paso en español, consulta [la guía rápida](docs/quickstart-es.md).
+Para entregar directamente las pruebas a distintas herramientas, sigue [las instrucciones de los exámenes](benchmarks/tasks/README.md).
 
 Requires Python 3.11 or newer. The runner itself uses only the Python standard library.
 
@@ -35,7 +36,7 @@ This works for tools that do not offer a compatible local CLI. It creates the sa
 python3 -m agentbench prepare --task data.clean-large-csv.v1 --agent "Product and model name" --rows 1000000 --seed 20260929
 ```
 
-Upload the printed `task-package.zip` to a **new conversation/session** in the AI tool. Send the exact prompt from the printed `prompt.txt` and ask it to return every required file from `submission/`, including `run-receipt.json`. Copy its returned files into the matching local `results/runs/<run-id>/workspace/submission/` folder. Then evaluate and add provider usage from the product's session details:
+Upload the printed `task-package.zip` to a **new conversation/session** in the AI tool (or extract it and attach all contained files if ZIP upload is unsupported). Send the exact `prompt.md` printed by the command and ask it to return every required file from `submission/`, including `run-receipt.json`. Copy its returned files into the matching local `results/runs/<run-id>/workspace/submission/` folder. Then evaluate and add provider usage from the product's session details:
 
 ```sh
 python3 -m agentbench evaluate --run-id "ID printed by prepare" --provider-cost 0.12 --currency USD --input-tokens 12000 --output-tokens 2000 --wall-time-ms 95000 --usage-source "provider usage panel"

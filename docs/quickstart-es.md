@@ -38,8 +38,8 @@ Este camino no depende de que el producto tenga una CLI compatible. Prepara el p
 python -m agentbench prepare --task review.python-security-defect.v1 --agent "Nombre del producto y modelo"
 ```
 
-1. Sube `task-package.zip` a una conversación o sesión nueva.
-2. Copia el prompt exacto desde `prompt.txt` y envíalo junto al paquete.
+1. Abre una conversación o sesión nueva y sube `task-package.zip`. Si la herramienta no acepta ZIP, descomprímelo y adjunta todos sus archivos.
+2. Copia el `prompt.md` exacto impreso por el comando y envíalo. Ese mismo prompt también está dentro del ZIP.
 3. Descarga la respuesta y coloca los archivos pedidos en la carpeta `submission/` que imprime el comando. Incluye `run-receipt.json`.
 4. Copia coste, tokens y duración del panel de uso de esa ejecución y evalúa:
 
