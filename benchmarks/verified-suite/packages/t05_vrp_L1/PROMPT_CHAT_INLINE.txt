@@ -1,0 +1,248 @@
+I am giving you a complete, self-contained task. I cannot answer questions: follow the specification to the letter.
+Reply with the COMPLETE content of every deliverable, each one in its own Markdown code block (```), preceded by a line containing only the file name/path. Add no explanations.
+Deliverable(s): `routes.json`
+The data files are embedded at the end of this message.
+
+===== TASK.md =====
+# Requirements — Vehicle Routing Planner
+
+## Introduction
+
+A distribution company must deliver goods from a single depot to 30 customers. Vehicles are identical, and there are as many vehicles as needed. Each vehicle
+performs one **route**: it leaves the depot, visits some customers in a chosen order, and returns to the depot. You must plan the routes so that the **total distance driven is as small as possible**.
+
+All distances are **Manhattan distances between integer coordinates**: `dist((x1,y1),(x2,y2)) = |x1-x2| + |y1-y2|`. There is no randomness and no external service: everything you need is in `instance.json`.
+
+`instance.json` contains:
+```json
+{"depot": [500, 500], "capacity": 100, "max_route_distance": 2400,
+  "customers": [{"id": 1, "x": 120, "y": 870, "demand": 14}, ...]}
+```
+
+## Requirements
+
+### Requirement 1 — Feasible routes
+
+**User Story:** As a dispatcher, I want every customer served exactly once by a route that respects vehicle limits, so the plan can actually be driven.
+
+#### Acceptance Criteria
+1. THE plan SHALL contain every customer id exactly once across all routes, and no id that is not in the instance.
+2. FOR every route THE sum of the demands of its customers SHALL NOT exceed `capacity`.
+3. FOR every route THE distance `depot → c1 → … → ck → depot` SHALL NOT exceed `max_route_distance`.
+4. EVERY route SHALL contain at least one customer.
+
+### Requirement 2 — Low total distance
+
+**User Story:** As a dispatcher, I want the shortest total distance you can find, so fuel and driver time are minimised.
+
+#### Acceptance Criteria
+1. THE score of a feasible plan SHALL be `min(1, reference_distance / your_distance)`, where `reference_distance` is the total distance of a fixed, strong (but not optimal) heuristic solution that you cannot see. Matching it gives 1.0; a plan that is 25 % longer scores 0.8.
+2. WHEN the plan is not feasible (Requirement 1) THEN its score SHALL be 0.
+3. THE evaluation is deterministic and depends only on the submitted routes — running time is not measured, but the plan must be computed by you before you finish.
+
+### Requirement 3 — Output contract
+
+#### Acceptance Criteria
+1. THE deliverable SHALL be the file `routes.json` containing exactly: `{"routes": [[3, 17, 5], [1, 9], ...]}` — a list of routes, each a list of customer ids in visiting order.
+2. THE ids SHALL be integers exactly as given in `instance.json`.
+
+### Requirement 4 — Environment, dependencies, safety
+1. Use Python 3.10+ and only the standard library if you write code. No network access is needed or allowed.
+2. Do not modify `instance.json`.
+
+## Deliverables and provided files
+Deliver `answer/routes.json`. Provided (read-only): `instance.json`.
+
+
+===== FILE: instance.json =====
+{
+ "capacity": 100,
+ "customers": [
+  {
+   "demand": 5,
+   "id": 1,
+   "x": 998,
+   "y": 372
+  },
+  {
+   "demand": 1,
+   "id": 2,
+   "x": 142,
+   "y": 721
+  },
+  {
+   "demand": 19,
+   "id": 3,
+   "x": 701,
+   "y": 733
+  },
+  {
+   "demand": 6,
+   "id": 4,
+   "x": 169,
+   "y": 103
+  },
+  {
+   "demand": 23,
+   "id": 5,
+   "x": 140,
+   "y": 484
+  },
+  {
+   "demand": 5,
+   "id": 6,
+   "x": 202,
+   "y": 747
+  },
+  {
+   "demand": 6,
+   "id": 7,
+   "x": 72,
+   "y": 878
+  },
+  {
+   "demand": 8,
+   "id": 8,
+   "x": 47,
+   "y": 923
+  },
+  {
+   "demand": 29,
+   "id": 9,
+   "x": 716,
+   "y": 702
+  },
+  {
+   "demand": 19,
+   "id": 10,
+   "x": 258,
+   "y": 771
+  },
+  {
+   "demand": 4,
+   "id": 11,
+   "x": 872,
+   "y": 734
+  },
+  {
+   "demand": 10,
+   "id": 12,
+   "x": 850,
+   "y": 963
+  },
+  {
+   "demand": 25,
+   "id": 13,
+   "x": 536,
+   "y": 302
+  },
+  {
+   "demand": 16,
+   "id": 14,
+   "x": 263,
+   "y": 841
+  },
+  {
+   "demand": 18,
+   "id": 15,
+   "x": 16,
+   "y": 562
+  },
+  {
+   "demand": 11,
+   "id": 16,
+   "x": 163,
+   "y": 190
+  },
+  {
+   "demand": 24,
+   "id": 17,
+   "x": 773,
+   "y": 589
+  },
+  {
+   "demand": 15,
+   "id": 18,
+   "x": 380,
+   "y": 774
+  },
+  {
+   "demand": 15,
+   "id": 19,
+   "x": 160,
+   "y": 799
+  },
+  {
+   "demand": 9,
+   "id": 20,
+   "x": 777,
+   "y": 322
+  },
+  {
+   "demand": 30,
+   "id": 21,
+   "x": 781,
+   "y": 982
+  },
+  {
+   "demand": 20,
+   "id": 22,
+   "x": 660,
+   "y": 987
+  },
+  {
+   "demand": 11,
+   "id": 23,
+   "x": 130,
+   "y": 319
+  },
+  {
+   "demand": 1,
+   "id": 24,
+   "x": 441,
+   "y": 288
+  },
+  {
+   "demand": 1,
+   "id": 25,
+   "x": 175,
+   "y": 362
+  },
+  {
+   "demand": 11,
+   "id": 26,
+   "x": 417,
+   "y": 41
+  },
+  {
+   "demand": 7,
+   "id": 27,
+   "x": 47,
+   "y": 821
+  },
+  {
+   "demand": 25,
+   "id": 28,
+   "x": 915,
+   "y": 60
+  },
+  {
+   "demand": 30,
+   "id": 29,
+   "x": 199,
+   "y": 858
+  },
+  {
+   "demand": 9,
+   "id": 30,
+   "x": 756,
+   "y": 187
+  }
+ ],
+ "depot": [
+  500,
+  500
+ ],
+ "max_route_distance": 2400
+}
+

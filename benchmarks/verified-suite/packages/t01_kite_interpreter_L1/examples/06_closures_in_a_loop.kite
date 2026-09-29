@@ -1,0 +1,5 @@
+let fs = [];
+for i in range(3) {
+  push(fs, fn() { return i; });
+}
+print(fs[0]() + fs[1]() * 10 + fs[2]() * 100);

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """CLI de la suite. SOLO biblioteca estándar.
 
-  list | generate | evaluate | reference | demo | run | report | selftest
+  list | generate | evaluate | score | reference | demo | run | report | selftest
 Flujo manual (cualquier herramienta): generate -> pegar PROMPT_CHAT.txt -> guardar la respuesta -> evaluate --response -> record.
 """
 from __future__ import annotations
@@ -191,6 +191,39 @@ def cmd_demo(tasks, a):
     print("\nCada directorio contiene for_tool/ (lo que ve la herramienta: TASK.md + PROMPT_*.txt) y hidden/ (solo evaluador).")
 
 
+def cmd_score(tasks, a):
+    """Puntúa la carpeta de un paquete congelado (con la respuesta del agente en answer/) regenerando la parte oculta con la misma semilla."""
+    t = resolve(tasks, a.task)
+    pkg = Path(a.package).resolve()
+    with tempfile.TemporaryDirectory() as tmp:
+        d = Path(tmp) / "run"
+        tool, hidden = prepare(t, d, a.seed, a.level)
+        (d / "meta.json").write_text(json.dumps({"level": a.level, "seed": a.seed}))
+        fresh = {k: v for k, v in fingerprint(tool).items() if not k.startswith("answer/")}
+        given = {k: v for k, v in fingerprint(pkg).items() if not k.startswith("answer/")}
+        changed = sorted(k for k in fresh if k in given and fresh[k] != given[k])
+        missing = sorted(k for k in fresh if k not in given)
+        extra = sorted(k for k in given if k not in fresh)
+        if changed or missing or extra:
+            print("AVISO: el paquete NO coincide con el que genera esa tarea/nivel/semilla. La nota puede no ser comparable.")
+            for label, items in (("modificados", changed), ("ausentes", missing), ("añadidos fuera de answer/", extra)):
+                if items:
+                    print(f"  {label}: {', '.join(items[:8])}{' …' if len(items) > 8 else ''}")
+        else:
+            print("Paquete verificado: idéntico al generado (misma tarea, nivel y semilla).")
+        src = pkg / "answer"
+        if src.exists():
+            for f in src.rglob("*"):
+                if f.is_file() and f.name != ".gitkeep":
+                    (tool / "answer" / f.relative_to(src)).parent.mkdir(parents=True, exist_ok=True)
+                    shutil.copy(f, tool / "answer" / f.relative_to(src))
+        res = safe_evaluate(t, tool / "answer", hidden)
+        print(f"score={res['score']:.4f} passed={res['passed']}\n" + "\n".join(
+            f"  {'✓' if c['value'] >= 0.999999 else '✗'} {c['name']}: {c['value']:.3f} {c['detail']}" for c in res["checks"] if c["weight"] > 0))
+        if a.tool:
+            _record(t, d, res, a)
+
+
 def _record(t, d: Path, res: dict, a, wall=None, rc=None, source="manual"):
     meta = json.loads((d / "meta.json").read_text()) if (d / "meta.json").exists() else {}
     rec = {
@@ -328,6 +361,12 @@ def main():
     s = sub.add_parser("demo", help="prueba rápida de extremo a extremo con la solución de referencia en todas las tareas")
     s.add_argument("--task"); s.add_argument("--level", type=int, default=1); s.add_argument("--seed", type=int, default=1)
     s.add_argument("--out", default="runs/demo"); s.set_defaults(fn=cmd_demo)
+    s = sub.add_parser("score", help="puntúa un paquete congelado (carpeta con la respuesta del agente en answer/)")
+    s.add_argument("task"); s.add_argument("--package", required=True)
+    s.add_argument("--level", type=int, default=1); s.add_argument("--seed", type=int, required=True)
+    s.add_argument("--tool"); s.add_argument("--cost-usd", type=float); s.add_argument("--input-tokens", type=int)
+    s.add_argument("--output-tokens", type=int); s.add_argument("--minutes", type=float); s.add_argument("--notes")
+    s.add_argument("--results", default="results.jsonl"); s.set_defaults(fn=cmd_score)
     s = sub.add_parser("run", help="ejecuta un agente de línea de comandos y lo evalúa"); s.add_argument("task"); s.add_argument("--tool", required=True)
     s.add_argument("--cmd", required=True, help="Comando (shell). Placeholders: {tool_dir} {prompt_file}")
     s.add_argument("--level", type=int, default=1); s.add_argument("--seed", type=int, default=1)

@@ -1,0 +1,56 @@
+I am giving you a complete, self-contained task. I cannot answer questions: follow the specification to the letter.
+Reply with the COMPLETE content of every deliverable, each one in its own Markdown code block (```), preceded by a line containing only the file name/path. Add no explanations.
+Deliverable(s): `routes.json`
+This task uses the following data files, which I **attach**:
+- `instance.json` (1,991 bytes)
+
+===== TASK.md =====
+# Requirements — Vehicle Routing Planner
+
+## Introduction
+
+A distribution company must deliver goods from a single depot to 30 customers. Vehicles are identical, and there are as many vehicles as needed. Each vehicle
+performs one **route**: it leaves the depot, visits some customers in a chosen order, and returns to the depot. You must plan the routes so that the **total distance driven is as small as possible**.
+
+All distances are **Manhattan distances between integer coordinates**: `dist((x1,y1),(x2,y2)) = |x1-x2| + |y1-y2|`. There is no randomness and no external service: everything you need is in `instance.json`.
+
+`instance.json` contains:
+```json
+{"depot": [500, 500], "capacity": 100, "max_route_distance": 2400,
+  "customers": [{"id": 1, "x": 120, "y": 870, "demand": 14}, ...]}
+```
+
+## Requirements
+
+### Requirement 1 — Feasible routes
+
+**User Story:** As a dispatcher, I want every customer served exactly once by a route that respects vehicle limits, so the plan can actually be driven.
+
+#### Acceptance Criteria
+1. THE plan SHALL contain every customer id exactly once across all routes, and no id that is not in the instance.
+2. FOR every route THE sum of the demands of its customers SHALL NOT exceed `capacity`.
+3. FOR every route THE distance `depot → c1 → … → ck → depot` SHALL NOT exceed `max_route_distance`.
+4. EVERY route SHALL contain at least one customer.
+
+### Requirement 2 — Low total distance
+
+**User Story:** As a dispatcher, I want the shortest total distance you can find, so fuel and driver time are minimised.
+
+#### Acceptance Criteria
+1. THE score of a feasible plan SHALL be `min(1, reference_distance / your_distance)`, where `reference_distance` is the total distance of a fixed, strong (but not optimal) heuristic solution that you cannot see. Matching it gives 1.0; a plan that is 25 % longer scores 0.8.
+2. WHEN the plan is not feasible (Requirement 1) THEN its score SHALL be 0.
+3. THE evaluation is deterministic and depends only on the submitted routes — running time is not measured, but the plan must be computed by you before you finish.
+
+### Requirement 3 — Output contract
+
+#### Acceptance Criteria
+1. THE deliverable SHALL be the file `routes.json` containing exactly: `{"routes": [[3, 17, 5], [1, 9], ...]}` — a list of routes, each a list of customer ids in visiting order.
+2. THE ids SHALL be integers exactly as given in `instance.json`.
+
+### Requirement 4 — Environment, dependencies, safety
+1. Use Python 3.10+ and only the standard library if you write code. No network access is needed or allowed.
+2. Do not modify `instance.json`.
+
+## Deliverables and provided files
+Deliver `answer/routes.json`. Provided (read-only): `instance.json`.
+

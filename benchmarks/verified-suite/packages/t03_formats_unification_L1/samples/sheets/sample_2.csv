@@ -1,0 +1,14 @@
+Receivables extract;;;;;;;;;;
+Prepared by: Finance Team;;;;;;;;;;
+net;program;Buyer-Id;Margin;FACTURA;DISCOUNT PCT;cliente;supplier_id;Item;proveedor;total_invoice_amount
+14 908,46 £;PRG-880;GB314348882;1,09;REF00014;;  Soylent Motors & Co, Ltd;D09602808;Pièces détachées;Soylent Logistics S.L.   ;14 908,46 £
+66 748,28 £;;;0,98;FAC00015;2,5 %;;;Pièces détachées;;65 079,57 £
+42 038,12 £;;;;FAC00016;5 %;;;Tornillos M8 (caja 100);;39 936,21 £
+Subtotal;;;;;;;;;;119 924,24 £
+34 394,24 $;PRG-234;  GB780993163;;REF00017;5 %;Umbrella   Motors S.A.;US-804294933   ;Toner cartridge;Cantábrica Systems S.A.;32 674,53 $
+89 021,34 $;;;3,75 %;INV00018;2,5 %;;;Cable HDMI 2 m;;95 475,39 $
+87 227,87 $;;;3,66;INV00019;10;;;Tornillos M8 (caja 100);;86 355,59 $
+48 377,95 $;;;3,13;INV00020;1,25 %;;;Consulting services Q1;;57 327,87 $
+;;;;Subtotal;;;;;;271 833,38 $
+;;;;Total;;;;;;216 505,21 €
+;;;;;;;;;;283 020,98 €

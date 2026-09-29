@@ -1,0 +1,34 @@
+[
+  {
+    "PROGRAM": null,
+    "SELLER ID": "US-284983701",
+    "SELLER": "Initech Motors GmbH",
+    "DEBTOR ID": "GB586298645",
+    "DEBTOR": "Stark Textiles SARL",
+    "INVOICE REF": "F-3/25",
+    "GOODS SERVICES": "Maintenance contract",
+    "TOTAL INVOICE AMOUNT": 61096.7,
+    "TOTAL NET VALUE": 51132.29,
+    "DISCOUNT PERCENTAGE": null,
+    "CURRENCY": "EUR",
+    "ISSUE DATE": "2024-10-02",
+    "DUE DATE": null,
+    "MARGIN": null
+  },
+  {
+    "PROGRAM": null,
+    "SELLER ID": "DE758377433",
+    "SELLER": "Ribera Industries S.L.",
+    "DEBTOR ID": "GB449759898",
+    "DEBTOR": "Wayne Trading GmbH",
+    "INVOICE REF": "F-4",
+    "GOODS SERVICES": "Alquiler de equipo; Maintenance contract",
+    "TOTAL INVOICE AMOUNT": 70769.88,
+    "TOTAL NET VALUE": 59987.18,
+    "DISCOUNT PERCENTAGE": 2.5,
+    "CURRENCY": "EUR",
+    "ISSUE DATE": "2025-09-01",
+    "DUE DATE": null,
+    "MARGIN": null
+  }
+]

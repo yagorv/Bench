@@ -1,0 +1,29 @@
+FACTURA
+Fecha de emisión:   02/10/2024
+Número de factura: F-3/25
+Emisor: Initech Motors GmbH   
+NIF emisor:   US-284983701
+NIF cliente:   GB586298645
+Comprador: Stark Textiles SARL
+-------------------------------------------
+Descripción                   Cant   Precio   Importe
+Maintenance contract           104   135,31  14072,24
+-------------------------------------------
+Base imponible:                 51132,29 EUR
+Total factura:                  61096,70 EUR
+================
+FACTURA
+Número de factura: F-4
+Fecha de emisión: 01/09/2025
+Comprador: Wayne Trading GmbH
+Descuento: 2,5%
+Emisor: Ribera Industries S.L.
+NIF comprador: GB449759898
+NIF proveedor: DE758377433
+--------------------------------------------
+Descripción                   Cant   Precio   Importe
+Alquiler de equipo              81    19,97   1617,57
+Maintenance contract           194   101,35  19661,90
+--------------------------------------------
+Base imponible:                  59.987,18 €
+Importe total:                   70.769,88 €
