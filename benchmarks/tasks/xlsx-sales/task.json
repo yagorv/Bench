@@ -21,6 +21,7 @@
   "starter_files": [],
   "generated_input_files": [],
   "output_files": [
-    "submission/quarterly-sales.xlsx"
+    "submission/quarterly-sales.xlsx",
+    "submission/run-receipt.json"
   ]
 }

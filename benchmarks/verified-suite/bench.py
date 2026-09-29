@@ -279,31 +279,24 @@ def cmd_run(tasks, a):
 
 
 def cmd_report(tasks, a):
-    recs = [json.loads(l) for l in Path(a.results).read_text().splitlines() if l.strip()]
+    """Summarize task quality only; cost is left for the benchmark owner to review."""
+    result_path = Path(a.results)
+    recs = [json.loads(line) for line in result_path.read_text().splitlines() if line.strip()] if result_path.exists() else []
     by_tool: dict[str, list] = {}
-    for r in recs:
-        by_tool.setdefault(r["tool"], []).append(r)
-    rows = []
-    for tool, rs in by_tool.items():
-        n = len(rs)
-        costs = [r["measured"]["cost_usd"] for r in rs if r["measured"].get("cost_usd") is not None]
-        passes = sum(1 for r in rs if r["passed"])
-        secs = [r["measured"]["wall_seconds"] for r in rs if r["measured"].get("wall_seconds") is not None]
-        tot = sum(costs) if len(costs) == n else None
-        rows.append({"tool": tool, "n": n, "score": sum(r["score"] for r in rs) / n, "pass": passes / n,
-                     "cost": tot / n if tot is not None else None, "cpp": tot / passes if (tot is not None and passes) else None,
-                     "secs": sum(secs) / len(secs) if secs else None})
-    costed = [r for r in rows if r["cost"] is not None]
-    for r in rows:
-        r["pareto"] = r["cost"] is not None and not any(o is not r and o["score"] >= r["score"] and o["cost"] <= r["cost"]
-                                                         and (o["score"] > r["score"] or o["cost"] < r["cost"]) for o in costed)
-    rows.sort(key=lambda r: (-r["score"], r["cost"] if r["cost"] is not None else 9e9))
-    f = lambda v, p: "n/d" if v is None else f"{v:{p}}"  # noqa: E731
-    print("| Herramienta | Ejec. | Puntuación media | % superadas | Coste medio (USD) | Coste por tarea superada | Tiempo medio (s) | Pareto |")
-    print("|---|---|---|---|---|---|---|---|")
-    for r in rows:
-        print(f"| {r['tool']} | {r['n']} | {r['score']:.3f} | {r['pass']:.0%} | {f(r['cost'], '.4f')} | {f(r['cpp'], '.4f')} | {f(r['secs'], '.0f')} | {'★' if r['pareto'] else ''} |")
-
+    for record in recs:
+        by_tool.setdefault(record["tool"], []).append(record)
+    print("| Herramienta | Ejec. | Puntuación media | % superadas | Tiempo medio (s) |")
+    print("|---|---:|---:|---:|---:|")
+    for tool, records in sorted(by_tool.items(), key=lambda item: (-sum(r["score"] for r in item[1]) / len(item[1]), item[0])):
+        count = len(records)
+        score = sum(r["score"] for r in records) / count
+        passed = sum(bool(r["passed"]) for r in records) / count
+        times = [r["measured"]["wall_seconds"] for r in records if r["measured"].get("wall_seconds") is not None]
+        mean_time = f"{sum(times) / len(times):.0f}" if times else "n/d"
+        print(f"| {tool} | {count} | {score:.3f} | {passed:.0%} | {mean_time} |")
+    if not recs:
+        print("Sin ejecuciones registradas.")
+    print("El informe no agrega costes. Revísalos directamente en el panel de cada proveedor.")
 
 def cmd_selftest(tasks, a):
     keys = [resolve(tasks, a.task).DIR.name] if a.task else list(tasks)

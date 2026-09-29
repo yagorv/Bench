@@ -16,14 +16,15 @@ El comando crea `task-package.zip` y una copia exacta del `prompt.md`. El ZIP co
 2. Sube el ZIP. Si esa herramienta no acepta ZIP, extráelo y adjunta todos los archivos que contiene.
 3. Envía el `prompt.md` exacto que imprimió el comando. No lo resumas ni lo adaptes entre productos.
 4. Descarga el artefacto que genere el agente y cópialo a `submission/` en la carpeta local del intento. Incluye `run-receipt.json`.
-5. Copia el coste, los tokens y la duración que enseñe el proveedor y llama a `evaluate`:
+5. Llama a `evaluate` para puntuar el resultado y abre la galería:
 
 ```sh
-python3 -m agentbench evaluate --run-id "ID impreso por prepare" --provider-cost 0.12 --currency USD --input-tokens 12000 --output-tokens 2000 --wall-time-ms 95000 --usage-source "panel del proveedor"
+python3 -m agentbench evaluate --run-id "ID impreso por prepare"
 python3 -m agentbench report
+python3 -m agentbench review --open
 ```
 
-Si no hay coste por intento visible, omite `--provider-cost`. Para consumo en créditos/ACU, indica la unidad en `--currency`, sin convertirlo a dinero salvo que el proveedor proporcione esa conversión. El recibo que genera el agente se guarda separado de la medición del proveedor.
+El reporte automático resume calidad y rutas de artefactos, no costes. Revisa tú el coste en el panel del proveedor. La galería abre vistas previas y enlaces a todos los archivos producidos; puedes añadir notas y una valoración de 1 a 5 y descargar `human-review.json`.
 
 ## Flujo para una CLI de agente
 
@@ -33,6 +34,7 @@ Si no hay coste por intento visible, omite `--provider-cost`. Para consumo en cr
 python3 -m agentbench run --agent claude-code --task data.clean-large-csv.v1 --repetitions 5 --rows 1000000 --seed 20260929
 python3 -m agentbench run --agent codex-cli --task data.clean-large-csv.v1 --repetitions 5 --rows 1000000 --seed 20260929
 python3 -m agentbench report
+python3 -m agentbench review --open
 ```
 
 ## Batería principal: tareas de varios minutos
@@ -45,6 +47,6 @@ python3 -m agentbench report
 
 ## Calibración
 
-Las tareas cortas siguen disponibles con `--task` para comprobar formato y funcionamiento, pero no forman parte de `--all`: `json.normalize-records.v1`, `python.fix-tax-calculation.v1`, `oneshot.ascii-pgm.v1`, `oneshot.xlsx-sales-report.v1`, `oneshot.png-artifact.v1` y `oneshot.mp4-artifact.v1`.
+Las tareas cortas siguen disponibles con `--task` para comprobar formato y funcionamiento, pero no forman parte de `--all`: `json.normalize-records.v1`, `python.fix-tax-calculation.v1`, `oneshot.ascii-pgm.v1`, `oneshot.xlsx-sales-report.v1`, `oneshot.png-artifact.v1`, `oneshot.mp4-artifact.v1` y `oneshot.audio-jingle.v1`.
 
 Repite cada intento en una sesión limpia. Conserva modelo/versión, permisos, presupuesto de herramientas, límites, tamaño y semilla. Las tareas de imagen y vídeo solo tienen una comprobación técnica de archivo; su calidad visual no entra en el puntaje determinista actual.

@@ -2,7 +2,7 @@
 
 > Subproyecto autónomo de este repositorio, con su propio ejecutor (`bench.py`) y su propio registro (`results.jsonl`), independiente de `python3 -m agentbench`. Los comandos de este documento se ejecutan **desde esta carpeta**: `cd benchmarks/verified-suite`. Requiere Python 3.10+ y solo biblioteca estándar.
 
-Cada prueba es un **`TASK.md` autocontenido** (requisitos al estilo *User Story + WHEN/THEN/SHALL*) más los ficheros que necesite. Lo ejecutas en la herramienta que quieras —agente de línea de comandos (Claude Code, Codex, Cursor…) o chat (ChatGPT, Gemini, Claude.ai…)— y un **verificador determinista en Python estándar** da una nota de 0 a 1. Tú mides el coste; la suite registra nota + coste + tiempo y calcula *coste por tarea superada* y la frontera de Pareto.
+Cada prueba es un **`TASK.md` autocontenido** (requisitos al estilo *User Story + WHEN/THEN/SHALL*) más los ficheros que necesite. Lo ejecutas en la herramienta que quieras —agente de línea de comandos (Claude Code, Codex, Cursor…) o chat (ChatGPT, Gemini, Claude.ai…)— y un **verificador determinista en Python estándar** da una nota de 0 a 1. La suite registra calidad y tiempo; el reporte no agrega coste, que revisarás tú en el panel del proveedor.
 
 **Requisitos:** Python 3.10+. Nada más (ni pip, ni red, ni servicios). Para *evaluar* código generado por una IA, hazlo en un contenedor o VM: el verificador lo ejecuta.
 
@@ -56,7 +56,7 @@ python3 bench.py generate t04 --level 1 --seed 11 --out runs/logs
 2. Guarda la respuesta completa del chat en un fichero (`respuesta.md`). Si hay varios entregables (T03 tiene 4), el modelo los escribe en bloques de código precedidos por el nombre del fichero; la suite los separa sola.
 3. `python3 bench.py evaluate t04 --dir runs/logs --response respuesta.md --tool chatgpt-5 --cost-usd 0.31 --input-tokens 60000 --output-tokens 2500 --minutes 2`
 
-Después de varias ejecuciones: `python3 bench.py report` → tabla con nota media, % superadas, coste medio, **coste por tarea superada**, tiempo y frontera de Pareto (★).
+Después de varias ejecuciones: `python3 bench.py report` → tabla con nota media, porcentaje de tareas superadas y tiempo. El coste no aparece en este reporte.
 
 Protocolo para que la comparación sea justa (mismo prompt por categoría, cero intervenciones humanas, ≥3 repeticiones, qué modelo/ajustes/límites registrar): `docs/RUN_PROTOCOL.md`.
 

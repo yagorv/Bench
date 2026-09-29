@@ -1,0 +1,32 @@
+{
+  "id": "oneshot.audio-jingle.v1",
+  "category": "one-shot-audio",
+  "title": "Synthesize the fixed eight-second jingle",
+  "status": "calibration",
+  "difficulty": "intermediate",
+  "estimated_minutes": {
+    "min": 3,
+    "max": 8
+  },
+  "requires": [
+    "coding"
+  ],
+  "context_files": [
+    "context/context.md"
+  ],
+  "input_files": [
+    "inputs/score.json"
+  ],
+  "starter_files": [],
+  "generated_input_files": [],
+  "output_files": [
+    "submission/jingle.wav",
+    "submission/run-receipt.json"
+  ],
+  "evaluator": {
+    "type": "wav-melody",
+    "output": "jingle.wav",
+    "score": "inputs/score.json"
+  },
+  "generator": null
+}

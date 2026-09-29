@@ -1,4 +1,6 @@
-Generate a 3-second 16:9 video showing a red ball moving left to right across a plain white background. Save submission/video.mp4. Use 24 fps and 640x360 when supported. This starter evaluator only checks MP4 container structure; duration, frame rate, and semantic content are recorded as limitations and are not part of the deterministic score.
+Generate one specific 8-second, 16:9 video at 640x360 and 24 fps. Use a fixed camera and a plain white background. Show one solid red ball (about 72 pixels in diameter) at vertical center. Follow this timeline: 0–1s, ball still at x=72; 1–3s, move smoothly to x=256; 3–4s, bounce once in place, rising about 70 pixels and returning; 4–6s, move smoothly to x=568; 6–7s, hold still; 7–8s, fade the ball to white. Keep the whole ball inside frame. Save exactly `submission/video.mp4`.
+
+The automatic check only validates MP4 container structure. Review the video yourself in the local artifact gallery for the requested timing, movement, dimensions, and visual glitches; these content checks are not included in the automatic score.
 
 ## Fixed task package
 

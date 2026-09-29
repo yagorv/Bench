@@ -2,19 +2,21 @@ from __future__ import annotations
 
 import argparse
 import csv
+import html
 import json
 import math
 import os
 import re
 import shutil
-import statistics
 import subprocess
 import sys
 import time
 import uuid
+import webbrowser
 import zipfile
 from pathlib import Path
 from typing import Any
+from urllib.parse import quote
 from xml.etree import ElementTree as ET
 
 from . import __version__
@@ -424,6 +426,8 @@ def evaluate(task: dict[str, Any], task_dir: Path, workspace: Path) -> dict[str,
         passed, details = _eval_png(task, submission)
     elif kind == "mp4-properties":
         passed, details = _eval_mp4(task, submission)
+    elif kind == "wav-melody":
+        passed, details = _eval_wav_melody(task, task_dir, workspace)
     elif kind == "python-unittest":
         passed, details, measurements = _eval_python_unittest(task, task_dir, workspace)
         return {"passed": passed, "type": kind, "details": details, "measurements": measurements}
@@ -644,6 +648,51 @@ def _eval_mp4(task: dict[str, Any], submission: Path) -> tuple[bool, list[str]]:
     return ok, [] if ok else ["file does not contain the expected MP4 ftyp, moov, and mdat boxes"]
 
 
+def _eval_wav_melody(task: dict[str, Any], task_dir: Path, workspace: Path) -> tuple[bool, list[str]]:
+    import struct
+    import wave
+
+    output = workspace / "submission" / task["evaluator"].get("output", "jingle.wav")
+    score = read_json(task_dir / task["evaluator"].get("score", "inputs/score.json"))
+    details: list[str] = []
+    try:
+        with wave.open(str(output), "rb") as stream:
+            channels = stream.getnchannels()
+            sample_width = stream.getsampwidth()
+            sample_rate = stream.getframerate()
+            frame_count = stream.getnframes()
+            frames = stream.readframes(frame_count)
+        expected_rate = score["sample_rate"]
+        note_seconds = score["note_seconds"]
+        notes = score["notes_midi"]
+        expected_frames = round(expected_rate * note_seconds * len(notes))
+        if channels != 1 or sample_width != 2 or sample_rate != expected_rate:
+            return False, [f"expected mono 16-bit PCM at {expected_rate} Hz; got {channels} channel(s), {sample_width * 8}-bit, {sample_rate} Hz"]
+        if frame_count != expected_frames or len(frames) != frame_count * 2:
+            details.append(f"expected {expected_frames} frames ({expected_frames / expected_rate:.2f}s); got {frame_count}")
+        samples = struct.unpack(f"<{frame_count}h", frames)
+        segment_frames = round(expected_rate * note_seconds)
+        for index, midi_note in enumerate(notes):
+            start = index * segment_frames + round(expected_rate * 0.05)
+            end = min(frame_count, (index + 1) * segment_frames - round(expected_rate * 0.05))
+            segment = samples[start:end]
+            if len(segment) < 2:
+                details.append(f"note {index + 1}: segment is too short")
+                continue
+            rms = math.sqrt(sum(value * value for value in segment) / len(segment))
+            crossings = sum(1 for left, right in zip(segment, segment[1:]) if left <= 0 < right or right <= 0 < left)
+            duration = (len(segment) - 1) / expected_rate
+            measured = crossings / (2 * duration)
+            target = 440.0 * (2.0 ** ((midi_note - 69) / 12.0))
+            if rms < 500:
+                details.append(f"note {index + 1}: audio is silent or too quiet")
+            elif abs(measured - target) > 2.5:
+                details.append(f"note {index + 1}: expected MIDI {midi_note} ({target:.2f} Hz), measured {measured:.2f} Hz")
+        return not details, details
+    except (OSError, wave.Error, KeyError, TypeError, ValueError, struct.error) as exc:
+        return False, [f"invalid WAV or score: {exc}"]
+
+
 def _eval_python_unittest(task: dict[str, Any], task_dir: Path, workspace: Path) -> tuple[bool, list[str], dict[str, Any]]:
     test_dir = task_dir / task["evaluator"].get("tests_dir", "grader")
     if not test_dir.is_dir() or not list(test_dir.glob("test*.py")):
@@ -822,96 +871,125 @@ def cmd_agents(_: argparse.Namespace) -> int:
 
 
 def cmd_report(_: argparse.Namespace) -> int:
+    """Write a task-quality summary; cost is reviewed by the benchmark owner."""
     files = sorted(RESULTS_DIR.glob("*/run.json"))
-    rows = [read_json(path) for path in files]
-    report_dir = ROOT / "results"
-    report_dir.mkdir(exist_ok=True)
-    out_csv = report_dir / "leaderboard.csv"
-    columns = ["agent_id", "agent_label", "category", "task_id", "attempts", "pass_rate",
-               "mean_provider_cost", "p50_provider_cost", "provider_cost_iqr", "provider_cost_per_success",
-               "provider_cost_currency", "provider_cost_source", "cost_cv_percent",
-               "mean_agent_reported_cost", "agent_reported_currency", "agent_reported_cost_basis",
-               "mean_wall_time_ms", "p50_wall_time_ms", "wall_time_iqr_ms",
-               "mean_solution_runtime_ms", "mean_grader_runtime_ms",
-               "mean_input_tokens", "mean_output_tokens", "valid_receipts"]
-    groups: dict[tuple[str, str, str], list[dict[str, Any]]] = {}
-    for row in rows:
-        groups.setdefault((row.get("agent_id", "?"), row.get("task_id", "?"), row.get("category", "?")), []).append(row)
-    output_rows = []
-    for (agent_id, task_id, category), group in sorted(groups.items()):
-        cost_observations = [(r.get("process", {}).get("usage", {}).get("provider_cost"),
-                              r.get("process", {}).get("usage", {}).get("currency"),
-                              r.get("process", {}).get("usage", {}).get("source")) for r in group]
-        cost_observations = [(float(c), cur, src) for c, cur, src in cost_observations
-                             if isinstance(c, (int, float))]
-        currencies = {cur for _, cur, _ in cost_observations}
-        sources = sorted({str(src) for _, _, src in cost_observations if src})
-        costs = [c for c, _, _ in cost_observations] if len(currencies) == 1 and None not in currencies else []
-        currency = next(iter(currencies)) if len(currencies) == 1 and None not in currencies else None
-        reported_costs = []
-        for r in group:
-            data = r.get("process", {}).get("agent_receipt", {}).get("data", {}).get("agent_reported", {})
-            value = data.get("cost")
-            if isinstance(value, (int, float)):
-                reported_costs.append((float(value), data.get("cost_currency"), data.get("cost_basis")))
-        reported_currencies = {cur for _, cur, _ in reported_costs}
-        reported_bases = {basis for _, _, basis in reported_costs}
-        times = [r.get("process", {}).get("wall_time_ms") for r in group]
-        times = [float(t) for t in times if isinstance(t, (int, float))]
-        def percentile(values: list[float], fraction: float) -> float | None:
-            sorted_values = sorted(values)
-            if not sorted_values:
-                return None
-            position = (len(sorted_values) - 1) * fraction
-            lower = math.floor(position)
-            upper = math.ceil(position)
-            return sorted_values[lower] + (sorted_values[upper] - sorted_values[lower]) * (position - lower)
-        ins = [r.get("process", {}).get("usage", {}).get("input_tokens") for r in group]
-        ins = [float(n) for n in ins if isinstance(n, (int, float))]
-        outs = [r.get("process", {}).get("usage", {}).get("output_tokens") for r in group]
-        outs = [float(n) for n in outs if isinstance(n, (int, float))]
-        solution_times = [r.get("evaluation", {}).get("measurements", {}).get("solution_runtime_ms") for r in group]
-        solution_times = [float(x) for x in solution_times if isinstance(x, (int, float))]
-        grader_times = [r.get("evaluation", {}).get("measurements", {}).get("grader_runtime_ms") for r in group]
-        grader_times = [float(x) for x in grader_times if isinstance(x, (int, float))]
-        mean_cost = statistics.mean(costs) if costs else None
-        successful = sum(bool(r.get("passed")) for r in group)
-        cv = None
-        if len(costs) > 1 and mean_cost:
-            cv = statistics.stdev(costs) / mean_cost * 100
-        output_rows.append({
-            "agent_id": agent_id, "agent_label": group[0].get("agent_label", agent_id),
-            "category": category, "task_id": task_id, "attempts": len(group),
-            "pass_rate": round(sum(bool(r.get("passed")) for r in group) / len(group), 4),
-            "mean_provider_cost": round(mean_cost, 6) if mean_cost is not None else None,
-            "p50_provider_cost": round(percentile(costs, 0.5), 6) if costs else None,
-            "provider_cost_iqr": round((percentile(costs, 0.75) or 0) - (percentile(costs, 0.25) or 0), 6) if costs else None,
-            "provider_cost_per_success": round(sum(costs) / successful, 6) if costs and len(costs) == len(group) and successful else None,
-            "provider_cost_currency": currency,
-            "provider_cost_source": ";".join(sources) if sources else None,
-            "cost_cv_percent": round(cv, 3) if cv is not None else None,
-            "mean_agent_reported_cost": round(statistics.mean([c for c, _, _ in reported_costs]), 6) if reported_costs and len(reported_currencies) <= 1 else None,
-            "agent_reported_currency": next(iter(reported_currencies)) if len(reported_currencies) == 1 else None,
-            "agent_reported_cost_basis": next(iter(reported_bases)) if len(reported_bases) == 1 else None,
-            "mean_wall_time_ms": round(statistics.mean(times), 1) if times else None,
-            "p50_wall_time_ms": round(percentile(times, 0.5), 1) if times else None,
-            "wall_time_iqr_ms": round((percentile(times, 0.75) or 0) - (percentile(times, 0.25) or 0), 1) if times else None,
-            "mean_solution_runtime_ms": round(statistics.mean(solution_times), 1) if solution_times else None,
-            "mean_grader_runtime_ms": round(statistics.mean(grader_times), 1) if grader_times else None,
-            "mean_input_tokens": statistics.mean(ins) if ins else None,
-            "mean_output_tokens": statistics.mean(outs) if outs else None,
-            "valid_receipts": sum(bool(r.get("receipt_valid")) for r in group),
+    rows: list[dict[str, Any]] = []
+    for path in files:
+        run = read_json(path)
+        submission = path.parent / "workspace" / "submission"
+        artifacts = sorted(p for p in submission.rglob("*") if p.is_file()) if submission.is_dir() else []
+        rows.append({
+            "agent": run.get("agent_label", run.get("agent_id")),
+            "task_id": run.get("task_id"),
+            "run_id": run.get("run_id", path.parent.name),
+            "passed": run.get("passed", False),
+            "receipt_valid": run.get("receipt_valid", False),
+            "evaluator": run.get("evaluation", {}).get("type"),
+            "artifacts": ";".join(p.relative_to(ROOT).as_posix() for p in artifacts),
         })
-    with out_csv.open("w", newline="", encoding="utf-8") as stream:
+    output = ROOT / "results" / "quality-summary.csv"
+    output.parent.mkdir(parents=True, exist_ok=True)
+    columns = ["agent", "task_id", "run_id", "passed", "receipt_valid", "evaluator", "artifacts"]
+    with output.open("w", newline="", encoding="utf-8") as stream:
         writer = csv.DictWriter(stream, fieldnames=columns)
         writer.writeheader()
-        writer.writerows(output_rows)
-    print(f"Wrote {out_csv}")
-    for row in output_rows:
-        cost = "n/a" if row["mean_provider_cost"] is None else f"{row['mean_provider_cost']} {row['provider_cost_currency']}"
-        print(f"{row['agent_id']:18} {row['task_id']:36} pass={row['pass_rate']:.0%} cost={cost} p50={row['p50_wall_time_ms'] or 'n/a'}ms")
-    if not output_rows:
-        print("No completed runs yet.")
+        writer.writerows(rows)
+    print(f"Wrote {output} ({len(rows)} attempts; cost is not included)")
+    print("For visual inspection of the generated files, run: python -m agentbench review --open")
+    return 0
+
+def cmd_review(args: argparse.Namespace) -> int:
+    """Build a local HTML gallery for human inspection of saved run outputs."""
+    report_dir = ROOT / "results"
+    report_dir.mkdir(parents=True, exist_ok=True)
+    report_path = report_dir / "review.html"
+    cards: list[str] = []
+    for run_file in sorted(RESULTS_DIR.glob("*/run.json")):
+        run = read_json(run_file)
+        run_dir = run_file.parent
+        submission = run_dir / "workspace" / "submission"
+        artifacts = sorted(p for p in submission.rglob("*") if p.is_file()) if submission.is_dir() else []
+        passed = bool(run.get("passed"))
+        badge = '<span class="pass">PASS</span>' if passed else '<span class="review">REVIEW</span>'
+        agent = html.escape(str(run.get("agent_label", run.get("agent_id", "unknown"))))
+        task = html.escape(str(run.get("task_id", "unknown")))
+        run_id = html.escape(str(run.get("run_id", run_dir.name)))
+        process = run.get("process", {})
+        wall = process.get("wall_time_ms")
+        metrics: list[str] = []
+        if isinstance(wall, (int, float)):
+            metrics.append(f"{wall / 1000:.1f} s")
+        receipt = "valid receipt" if run.get("receipt_valid") else "receipt missing/invalid"
+        metrics.append(receipt)
+        details = run.get("evaluation", {}).get("details", [])
+        details_html = ""
+        if details:
+            items = "".join(f"<li>{html.escape(str(item))}</li>" for item in details)
+            details_html = f"<details><summary>Evaluator notes</summary><ul>{items}</ul></details>"
+        output_html: list[str] = []
+        for artifact in artifacts:
+            relative = artifact.relative_to(report_dir).as_posix()
+            url = html.escape(quote(relative, safe="/"), quote=True)
+            name = html.escape(artifact.relative_to(submission).as_posix())
+            preview = ""
+            suffix = artifact.suffix.lower()
+            if suffix in {".png", ".jpg", ".jpeg", ".gif", ".webp"}:
+                preview = f'<a href="{url}"><img src="{url}" alt="{name}"></a>'
+            elif suffix in {".mp4", ".webm", ".mov"}:
+                preview = f'<video controls preload="metadata" src="{url}"></video>'
+            elif suffix in {".mp3", ".wav", ".ogg", ".m4a"}:
+                preview = f'<audio controls src="{url}"></audio>'
+            elif suffix in {".txt", ".md", ".json", ".csv", ".py", ".java", ".kt", ".xml", ".log"}:
+                try:
+                    text = artifact.read_text(encoding="utf-8", errors="replace")
+                    note = "\n… preview clipped …" if len(text) > 8000 else ""
+                    preview = f"<details><summary>Text preview</summary><pre>{html.escape(text[:8000])}{note}</pre></details>"
+                except OSError:
+                    pass
+            output_html.append(
+                f'<article><a href="{url}">{name}</a> <small>({artifact.stat().st_size:,} bytes)</small>{preview}</article>'
+            )
+        if not output_html:
+            output_html.append('<p class="muted">No files returned under submission/.</p>')
+        cards.append(
+            f'<section class="run" data-run-id="{run_id}" data-agent="{agent}" data-task="{task}">{badge}<h2>{agent} <small>· {task}</small></h2>'
+            f'<code>{run_id}</code><p>{html.escape(" · ".join(metrics))}</p>{details_html}'
+            '<div class="human-review"><label>Valoración manual '
+            '<select class="rating"><option value="">Pendiente</option><option value="1">1 · No cumple</option>'
+            '<option value="2">2</option><option value="3">3 · Aceptable</option><option value="4">4</option>'
+            '<option value="5">5 · Excelente</option></select></label> '
+            '<label>Notas <textarea class="notes" rows="2" placeholder="Qué revisar o mejorar"></textarea></label></div>'
+            f'<div class="outputs">{"".join(output_html)}</div></section>'
+        )
+    content = "".join(cards) if cards else "<p>No evaluated runs yet. Run or evaluate a task, then reopen this page.</p>"
+    page = (
+        '<!doctype html><html lang="es"><meta charset="utf-8"><meta name="viewport" content="width=device-width">'
+        '<title>Agent Benchmark output review</title><style>'
+        'body{font:15px/1.5 system-ui,sans-serif;max-width:1100px;margin:2rem auto;padding:0 1rem}'
+        '.run{border:1px solid #8888;border-radius:10px;padding:1rem;margin:1rem 0}'
+        '.pass,.review{font-weight:bold;border-radius:1rem;padding:.2rem .6rem}.pass{background:#287a3d;color:white}'
+        '.review{background:#b65b18;color:white}h2{display:inline-block;margin:.2rem .5rem}small,.muted{opacity:.7}'
+        '.outputs{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:.8rem;margin-top:1rem}'
+        '.human-review{display:flex;flex-wrap:wrap;gap:1rem;align-items:start;padding:.6rem 0}.human-review label{display:grid;gap:.25rem}'
+        '.human-review textarea{min-width:280px;font:inherit}button{font:inherit;padding:.45rem .8rem}'
+        'article{border:1px solid #8886;border-radius:8px;padding:.7rem;overflow-wrap:anywhere}'
+        'img,video{display:block;max-width:100%;max-height:420px;margin:.7rem auto}audio{width:100%}'
+        'pre{max-height:360px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;background:#8882;padding:.7rem}'
+        '</style><body><h1>Revisión de resultados del benchmark</h1>'
+        '<p>Abre y revisa los archivos producidos. PASS indica que pasó la comprobación automática. Añade tu valoración y notas; los costes no se incluyen.</p>'
+        '<button id="export-review">Descargar mis valoraciones</button>'
+        + content + '<p class="muted">Los enlaces abren los archivos originales guardados en results/runs/.</p>'
+        '<script>document.getElementById("export-review").addEventListener("click",()=>{'
+        'const rows=[...document.querySelectorAll(".run")].map(x=>({run_id:x.dataset.runId,agent:x.dataset.agent,task_id:x.dataset.task,'
+        'rating:x.querySelector(".rating").value||null,notes:x.querySelector(".notes").value}));'
+        'const blob=new Blob([JSON.stringify(rows,null,2)],{type:"application/json"});const a=document.createElement("a");'
+        'a.href=URL.createObjectURL(blob);a.download="human-review.json";a.click();URL.revokeObjectURL(a.href);});</script>'
+        '</body></html>'
+    )
+    report_path.write_text(page, encoding="utf-8")
+    print(f"Wrote {report_path}")
+    if args.open:
+        webbrowser.open(report_path.as_uri())
     return 0
 
 
@@ -945,6 +1023,8 @@ def make_parser() -> argparse.ArgumentParser:
     finish.add_argument("--wall-time-ms", type=int)
     finish.add_argument("--usage-source", default="provider-dashboard")
     sub.add_parser("report", help="aggregate all saved runs into a CSV scorecard")
+    review = sub.add_parser("review", help="create an HTML gallery of saved agent outputs")
+    review.add_argument("--open", action="store_true", help="open the gallery in the default browser")
     return parser
 
 
@@ -952,7 +1032,8 @@ def main(argv: list[str] | None = None) -> int:
     parser = make_parser()
     args = parser.parse_args(argv)
     actions = {"init": cmd_init, "list": cmd_list, "agents": cmd_agents, "run": cmd_run,
-               "prepare": cmd_prepare, "evaluate": cmd_evaluate_manual, "report": cmd_report}
+               "prepare": cmd_prepare, "evaluate": cmd_evaluate_manual, "report": cmd_report,
+               "review": cmd_review}
     try:
         if getattr(args, "repetitions", 1) < 1:
             raise BenchError("--repetitions must be at least 1")

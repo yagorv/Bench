@@ -20,6 +20,7 @@
   ],
   "generated_input_files": [],
   "output_files": [
-    "submission/solution.py"
+    "submission/solution.py",
+    "submission/run-receipt.json"
   ]
 }

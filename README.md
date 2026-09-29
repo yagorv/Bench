@@ -24,9 +24,10 @@ Run one long-form task five times, or run the complete long-form battery:
 python3 -m agentbench run --agent claude-code --task python.workflow-scheduler.v1 --repetitions 5
 python3 -m agentbench run --agent claude-code --all --repetitions 5 --rows 1000000 --seed 20260929
 python3 -m agentbench report
+python3 -m agentbench review --open
 ```
 
-`results/runs/` contains one folder per attempt with the exact prompt, copied inputs, raw logs, submission, usage receipt, and `run.json`. `results/leaderboard.csv` aggregates pass rate, provider cost per attempt and per successful task where usage is complete, tokens where exposed, and median elapsed time. Keep the whole `results/` folder to archive or share a benchmark session.
+`results/runs/` contains each attempt, its exact prompt, inputs, logs, generated files, usage receipt, and `run.json`. `agentbench report` writes a quality-only CSV with pass/fail and artifact paths. `agentbench review --open` opens a local gallery with image, video, and audio previews and readable text outputs. Cost is not aggregated; compare it manually in each provider session.
 
 ## Use a web or desktop AI tool
 
@@ -39,25 +40,26 @@ python3 -m agentbench prepare --task data.clean-large-csv.v1 --agent "Product an
 Upload the printed `task-package.zip` to a **new conversation/session** in the AI tool (or extract it and attach all contained files if ZIP upload is unsupported). Send the exact `prompt.md` printed by the command and ask it to return every required file from `submission/`, including `run-receipt.json`. Copy its returned files into the matching local `results/runs/<run-id>/workspace/submission/` folder. Then evaluate and add provider usage from the product's session details:
 
 ```sh
-python3 -m agentbench evaluate --run-id "ID printed by prepare" --provider-cost 0.12 --currency USD --input-tokens 12000 --output-tokens 2000 --wall-time-ms 95000 --usage-source "provider usage panel"
+python3 -m agentbench evaluate --run-id "ID printed by prepare"
 python3 -m agentbench report
+python3 -m agentbench review --open
 ```
 
-Use the provider's actual per-session charge or usage units. If it only shows subscription pricing and no per-task usage, omit `--provider-cost`; do not invent a number. Repeat `prepare` for each attempt and use the same task, row count, seed, tool settings, and model version for comparisons. The run receipt reports what the agent says it used; the values passed to `evaluate` record provider-side usage separately.
+Repeat `prepare` for each attempt using the same task, row count, seed, tool settings, and model version. Review each generated output in the gallery; assess cost manually in the provider session. The optional receipt is saved with the run.
 
 ## Runnable task set
 
-The main battery contains long-form tasks designed to require several minutes of multi-step work: cleaning a generated million-row dataset, reviewing a 12-defect multi-file Python service, and implementing a deterministic workflow scheduler with hidden contract tests. Each has an estimated work range in `agentbench list`; actual wall time is measured per run and can vary by tool, hardware, and model. `--all` runs only these long-form tasks. Short JSON, bug-fix, and artifact tasks remain available by ID as calibration checks. Image and video evaluators currently check file/container validity and dimensions only. Android tasks are planned, not yet part of the runnable battery.
+The main battery contains long-form tasks designed to require several minutes of multi-step work: cleaning a generated million-row dataset, reviewing a 12-defect multi-file Python service, and implementing a deterministic workflow scheduler with hidden contract tests. Each has an estimated work range in `agentbench list`; actual wall time is measured per run and can vary by tool, hardware, and model. `--all` runs only these long-form tasks. Short JSON, bug-fix, and artifact tasks remain available by ID as calibration checks. The audio jingle has exact pitch and duration checks plus a human listening step. The video storyboard's semantic content is for human review. Android tasks are planned, not yet part of the runnable battery.
 
-## Fair comparison and cost
+## Fair comparison and output review
 
-The harness controls task prompt, task context, fixtures, seed, starting workspace, evaluator, timeout, and repetitions. Prompt and input SHA-256 hashes are stored per run. Configure the same network policy, model settings, permissions, and tool budgets for a controlled comparison, and report product-native workflows separately. Each retry is a fresh workspace. It records wall time and output/evaluator results. Provider cost and tokens are captured from supported CLI telemetry, an adapter sidecar, or manual provider-session details; each agent also writes a receipt but those self-reported numbers are kept separate. Unknown cost stays `null`; subscription fees are not treated as per-task spend.
+The harness controls task prompt, context, fixtures, seed, starting workspace, evaluator, timeout, and repetitions. Prompt and input hashes are stored per run. Configure the same network policy, model settings, permissions, and tool budgets for a controlled comparison. Each retry starts fresh. The runner saves outputs and quality results; the human review gallery links to each original artifact. Cost is reviewed by you in the provider session and is not included in the benchmark report.
 
-Repeated inference is not perfectly deterministic for most hosted agents. Use at least five attempts, publish all attempts, and compare success rate plus median/variation of time and cost. Lock model/version/settings where the vendor supports it. See [the protocol](docs/protocol.md) for the controlled and native tracks.
+Repeated inference is not perfectly deterministic for most hosted agents. Use at least five attempts and compare success rate and output quality. Lock model/version/settings where supported. Review costs separately in provider dashboards. See [the protocol](docs/protocol.md) for the controlled and native tracks.
 
 ## Verified suite (held-out inputs, generated exams)
 
-[`benchmarks/verified-suite/`](benchmarks/verified-suite/README.md) is a separate, self-contained suite with its own runner (`bench.py`, standard library only, Python 3.10+). Its tasks are longer, requirements-style problems whose exam is **generated from a seed** and checked against inputs the tool never sees: a Kite interpreter and a bug-fixing variant, a three-CLI invoice pipeline (Formats Unification), log forensics from 55k to 2M tokens, and vehicle routing with a continuous score. Every task ships a reference solution that scores 1.0 and a self-test that also checks that an empty or deliberately broken solution does not.
+[`benchmarks/verified-suite/`](benchmarks/verified-suite/README.md) is a separate, self-contained suite with its own runner (`bench.py`, standard library only, Python 3.10+). Its tasks are longer, requirements-style problems whose exam is **generated from a seed** and checked against inputs the tool never sees: a Kite interpreter and a bug-fixing variant, a three-CLI invoice pipeline (Formats Unification), log forensics from 55k to 2M tokens, and vehicle routing with a continuous score. Every task ships a reference solution that scores 1.0 and a self-test that also checks that an empty or deliberately broken solution does not. Its summary reports quality and time; it does not aggregate cost.
 
 ```sh
 cd benchmarks/verified-suite
@@ -65,7 +67,7 @@ python3 bench.py demo     # all five tasks: empty = 0, reference = 1.0
 python3 bench.py list
 ```
 
-It records results in its own `results.jsonl` (score, cost, tokens, time) and reports cost per passed task and the Pareto frontier. It does not use `python3 -m agentbench` or `benchmarks/tasks/`; the two runners do not share result formats.
+It records results in its own `results.jsonl` (score, optional provider telemetry, and time). Its report shows quality and time only; review cost directly in the provider panel. It does not use `python3 -m agentbench` or `benchmarks/tasks/`; the two runners do not share result formats.
 
 ## Extending it
 

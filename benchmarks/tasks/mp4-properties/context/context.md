@@ -1,2 +1,2 @@
 # Fixed task context
-This is a one-shot video capability task. The requested artifact is an MP4 file. The deterministic evaluator checks for a valid-looking MP4 container with `ftyp`, `moov`, and `mdat` boxes. It does not score duration, resolution, frame rate, motion, or semantic content.
+This is a one-shot video capability task with a fixed shot list. The automatic evaluator checks for an MP4 container with `ftyp`, `moov`, and `mdat` boxes. Human review should check the requested duration, resolution and frame rate, each time-coded ball position, the bounce and fade, and any visible artifacts. The local `agentbench review --open` gallery embeds a video player and links the original file.

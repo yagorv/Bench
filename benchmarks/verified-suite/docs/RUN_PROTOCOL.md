@@ -31,13 +31,13 @@ Añade una línea a `results.jsonl` con la puntuación del verificador y lo que 
 ## Coste: qué medir (cada herramienta lo expone a su manera)
 - **API/agentes con telemetría**: tokens de entrada, salida, caché (lectura/escritura) y razonamiento → coste en USD con la tarifa vigente; nº de turnos y de llamadas a herramientas.
 - **Suscripciones/chats sin telemetría**: tokens estimados con el tokenizer del proveedor sobre prompt + respuesta, más tiempo de reloj; marcar `source: estimado`.
-- Se reporta siempre **coste absoluto, coste por prueba superada y tiempo**, no solo puntuación.
+- El reporte automático muestra calidad y tiempo. Revisa el coste directamente en el panel del proveedor; no se agrega en la suite.
 
 ## Informe
 ```
 python3 bench.py report
 ```
-Tabla por herramienta: puntuación media, % superadas, coste medio, **coste por tarea superada**, tiempo y **frontera de Pareto** (★ = nadie es a la vez mejor y más barato).
+Tabla por herramienta: puntuación media, porcentaje superado y tiempo medio. El coste queda fuera del reporte para que lo evalúes manualmente.
 
 ## Avisos
 - El verificador **ejecuta código generado por una IA**. Ejecútalo en un contenedor/VM sin credenciales.

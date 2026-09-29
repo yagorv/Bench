@@ -22,6 +22,7 @@
   "starter_files": [],
   "generated_input_files": [],
   "output_files": [
-    "submission/image.png"
+    "submission/image.png",
+    "submission/run-receipt.json"
   ]
 }

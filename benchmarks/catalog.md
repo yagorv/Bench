@@ -25,9 +25,10 @@ These short tasks remain runnable by ID or category. They are excluded from `--a
 | `oneshot.ascii-pgm.v1` | Render a fixed pixel image as ASCII | Exact character rendering |
 | `oneshot.xlsx-sales-report.v1` | Create a sales workbook | Required cells, formula, sheet names, frozen header |
 | `oneshot.png-artifact.v1` | Generate a fixed-size PNG illustration | PNG encoding and dimensions only |
-| `oneshot.mp4-artifact.v1` | Generate an MP4 clip | MP4 container structure only |
+| `oneshot.mp4-artifact.v1` | Generate an 8-second storyboarded ball animation | MP4 container structure; human review checks timing and visible content |
+| `oneshot.audio-jingle.v1` | Synthesize a fixed 16-note, 8-second jingle | PCM WAV format, exact duration, audibility, and note pitches; listen in the review gallery |
 
-Image/video semantic quality, frame rate, and duration are not currently scored. Those outputs must be reported in a modality track, separately from exact software correctness, until pinned, reproducible perceptual evaluators are added. Android build, bug-fix, feature, and review tasks remain on the roadmap and are not included in `--all` yet.
+Image quality is available for human review in the gallery; the automatic image check only validates dimensions. The video task includes a fixed storyboard, but semantic content is checked by you in the video player, not by the deterministic evaluator. Android build, bug-fix, feature, and review tasks remain on the roadmap and are not included in `--all` yet.
 
 ## Verified suite (separate runner)
 

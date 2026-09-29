@@ -21,6 +21,7 @@
   "starter_files": [],
   "generated_input_files": [],
   "output_files": [
-    "submission/result.json"
+    "submission/result.json",
+    "submission/run-receipt.json"
   ]
 }
