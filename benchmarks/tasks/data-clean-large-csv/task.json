@@ -1,0 +1,39 @@
+{
+  "id": "data.clean-large-csv.v1",
+  "category": "data-engineering",
+  "title": "Stream-clean a generated large CSV",
+  "status": "ready",
+  "requires": [
+    "data",
+    "coding"
+  ],
+  "evaluator": {
+    "type": "data-clean-csv"
+  },
+  "context_files": [
+    "context/context.md"
+  ],
+  "difficulty": "advanced",
+  "input_files": [],
+  "starter_files": [],
+  "generated_input_files": [
+    "inputs/events.csv"
+  ],
+  "output_files": [
+    "submission/solution.py",
+    "submission/cleaned.csv",
+    "submission/summary.json"
+  ],
+  "generator": {
+    "id": "synthetic-events-v1",
+    "default_rows": 1000000,
+    "default_seed": 20260929,
+    "columns": [
+      "record_id",
+      "email",
+      "event_time",
+      "amount"
+    ],
+    "generator_entrypoint": "agentbench.cli._generate_events"
+  }
+}

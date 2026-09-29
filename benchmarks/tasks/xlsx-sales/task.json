@@ -1,0 +1,26 @@
+{
+  "id": "oneshot.xlsx-sales-report.v1",
+  "category": "one-shot-spreadsheet",
+  "title": "Build a deterministic sales workbook",
+  "status": "ready",
+  "requires": [
+    "spreadsheet"
+  ],
+  "evaluator": {
+    "type": "xlsx-contract",
+    "output": "quarterly-sales.xlsx",
+    "expected": "expected.json"
+  },
+  "context_files": [
+    "context/context.md"
+  ],
+  "difficulty": "intermediate",
+  "input_files": [
+    "inputs/sales.csv"
+  ],
+  "starter_files": [],
+  "generated_input_files": [],
+  "output_files": [
+    "submission/quarterly-sales.xlsx"
+  ]
+}

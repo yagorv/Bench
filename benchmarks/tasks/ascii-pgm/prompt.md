@@ -1,0 +1,3 @@
+Convert inputs/portrait.pgm to ASCII art and write submission/art.txt as UTF-8. Use this exact ramp from darkest to lightest: @%#*+=-:. (space). Map each pixel with index = min(9, pixel * 9 // (maximum + 1)); preserve image width and height, trimming trailing spaces on each line. No title, Markdown fences, or commentary in art.txt.
+
+The harness appends the required machine-readable usage receipt instructions. Include submission/run-receipt.json and report only usage you can actually inspect.

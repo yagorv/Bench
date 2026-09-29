@@ -1,0 +1,25 @@
+{
+  "id": "oneshot.ascii-pgm.v1",
+  "category": "one-shot-text",
+  "title": "Convert fixed PGM pixels to exact ASCII",
+  "status": "ready",
+  "requires": [
+    "text"
+  ],
+  "evaluator": {
+    "type": "ascii-exact",
+    "output": "art.txt"
+  },
+  "context_files": [
+    "context/context.md"
+  ],
+  "difficulty": "calibration",
+  "input_files": [
+    "inputs/portrait.pgm"
+  ],
+  "starter_files": [],
+  "generated_input_files": [],
+  "output_files": [
+    "submission/art.txt"
+  ]
+}

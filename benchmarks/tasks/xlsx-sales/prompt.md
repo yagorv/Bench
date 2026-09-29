@@ -1,0 +1,3 @@
+Create submission/quarterly-sales.xlsx from inputs/sales.csv. Include sheets named Transactions and Summary in that order. Transactions must contain all input rows, the header row, and freeze its header row. Add a revenue column in E with quantity × unit_price for each transaction. Summary must contain total revenue in B2 using a spreadsheet formula (SUM over Transactions revenue values). The evaluator checks required headers and row values, formula, sheet names, and frozen header.
+
+The harness appends the required machine-readable usage receipt instructions. Include submission/run-receipt.json and report only usage you can actually inspect.

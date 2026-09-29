@@ -1,0 +1,22 @@
+{
+  "agents": [
+    {
+      "id": "claude-code",
+      "label": "Claude Code (headless)",
+      "command": ["claude", "-p", "--output-format", "json", "--max-turns", "8"],
+      "parser": "claude-code-json",
+      "stdin": "prompt",
+      "timeout_seconds": 900,
+      "capabilities": ["coding", "data", "review", "text", "spreadsheet"]
+    },
+    {
+      "id": "codex-cli",
+      "label": "OpenAI Codex CLI",
+      "command": ["codex", "exec", "--json", "--skip-git-repo-check", "--sandbox", "workspace-write", "--cd", "{workspace}", "-"],
+      "parser": "json",
+      "stdin": "prompt",
+      "timeout_seconds": 900,
+      "capabilities": ["coding", "data", "review", "text", "spreadsheet"]
+    }
+  ]
+}

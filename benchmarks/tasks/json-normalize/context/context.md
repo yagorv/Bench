@@ -1,0 +1,2 @@
+# Fixed task context
+Input file: `inputs/records.json`. Each object has `id`, `email`, and numeric `amount`. Normalize an email by trimming surrounding whitespace and lowercasing it. A valid email has one `@`, nonempty local and domain parts, and a dot in the domain. Keep the first valid record for each `id` in input order, then sort retained objects by `id` ascending. Output must be a JSON array with exactly the three source fields.

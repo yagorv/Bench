@@ -1,0 +1,27 @@
+{
+  "id": "oneshot.png-artifact.v1",
+  "category": "one-shot-image",
+  "title": "Generate a PNG artifact with fixed dimensions",
+  "status": "ready",
+  "requires": [
+    "image"
+  ],
+  "evaluator": {
+    "type": "png-properties",
+    "output": "image.png",
+    "dimensions": [
+      256,
+      256
+    ]
+  },
+  "context_files": [
+    "context/context.md"
+  ],
+  "difficulty": "modality-calibration",
+  "input_files": [],
+  "starter_files": [],
+  "generated_input_files": [],
+  "output_files": [
+    "submission/image.png"
+  ]
+}

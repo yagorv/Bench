@@ -15,3 +15,6 @@ local.properties
 __pycache__/
 *.py[cod]
 .venv/
+venv/
+.DS_Store
+.agentbench/agents.json

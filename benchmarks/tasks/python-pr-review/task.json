@@ -1,0 +1,29 @@
+{
+  "id": "review.python-security-defect.v1",
+  "category": "code-review",
+  "title": "Find a seeded path traversal defect",
+  "status": "ready",
+  "requires": [
+    "review"
+  ],
+  "evaluator": {
+    "type": "pr-review-json",
+    "output": "findings.json",
+    "expected": "expected.json"
+  },
+  "context_files": [
+    "context/context.md"
+  ],
+  "difficulty": "advanced",
+  "input_files": [
+    "inputs/auth.py",
+    "inputs/cache.py",
+    "inputs/parser.py",
+    "inputs/payments.py"
+  ],
+  "starter_files": [],
+  "generated_input_files": [],
+  "output_files": [
+    "submission/findings.json"
+  ]
+}

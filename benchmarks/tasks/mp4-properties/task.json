@@ -1,0 +1,23 @@
+{
+  "id": "oneshot.mp4-artifact.v1",
+  "category": "one-shot-video",
+  "title": "Generate a valid short MP4 artifact",
+  "status": "ready",
+  "requires": [
+    "video"
+  ],
+  "evaluator": {
+    "type": "mp4-properties",
+    "output": "video.mp4"
+  },
+  "context_files": [
+    "context/context.md"
+  ],
+  "difficulty": "modality-calibration",
+  "input_files": [],
+  "starter_files": [],
+  "generated_input_files": [],
+  "output_files": [
+    "submission/video.mp4"
+  ]
+}

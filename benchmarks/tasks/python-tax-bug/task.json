@@ -1,0 +1,25 @@
+{
+  "id": "python.fix-tax-calculation.v1",
+  "category": "software-engineering",
+  "title": "Fix a seeded tax calculation bug",
+  "status": "ready",
+  "requires": [
+    "coding"
+  ],
+  "evaluator": {
+    "type": "bugfix-python",
+    "module": "solution.py"
+  },
+  "context_files": [
+    "context/context.md"
+  ],
+  "difficulty": "intermediate",
+  "input_files": [],
+  "starter_files": [
+    "starter/submission/solution.py"
+  ],
+  "generated_input_files": [],
+  "output_files": [
+    "submission/solution.py"
+  ]
+}

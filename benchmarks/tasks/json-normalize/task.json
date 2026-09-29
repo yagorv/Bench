@@ -1,0 +1,26 @@
+{
+  "id": "json.normalize-records.v1",
+  "category": "structured-output",
+  "title": "Normalize and deduplicate JSON records",
+  "status": "ready",
+  "requires": [
+    "text"
+  ],
+  "evaluator": {
+    "type": "json-exact",
+    "output": "result.json",
+    "expected": "expected.json"
+  },
+  "context_files": [
+    "context/context.md"
+  ],
+  "difficulty": "calibration",
+  "input_files": [
+    "inputs/records.json"
+  ],
+  "starter_files": [],
+  "generated_input_files": [],
+  "output_files": [
+    "submission/result.json"
+  ]
+}

@@ -1,0 +1,26 @@
+[
+  {
+    "rule_id": "path-traversal",
+    "path": "inputs/cache.py",
+    "line": 7,
+    "severity": "high"
+  },
+  {
+    "rule_id": "weak-password-hash",
+    "path": "inputs/auth.py",
+    "line": 4,
+    "severity": "high"
+  },
+  {
+    "rule_id": "float-money-rounding",
+    "path": "inputs/payments.py",
+    "line": 2,
+    "severity": "medium"
+  },
+  {
+    "rule_id": "shell-command-injection",
+    "path": "inputs/parser.py",
+    "line": 5,
+    "severity": "high"
+  }
+]

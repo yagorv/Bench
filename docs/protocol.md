@@ -17,7 +17,7 @@ For text-to-image or text-to-video tasks, fix the prompt and requested settings 
 
 ## Reproducibility record
 
-For every run, save a machine-readable record with:
+Every task package must be self-contained: its prompt, declared `context_files`, inputs, starter project, output contract, and fixed seed/size. The runner records SHA-256 hashes for the exact prompt and starting workspace. Evaluator reference outputs stay outside the package. For every run, save a machine-readable record with:
 
 - benchmark commit, task ID and task version;
 - starting Git commit or dataset manifest SHA-256;
@@ -30,7 +30,7 @@ For every run, save a machine-readable record with:
 
 Every agent must also return a final machine-readable run receipt as part of its answer, using [`run-receipt.schema.json`](run-receipt.schema.json). Require this even when the task asks for a file or other artifact. The agent must report all usage it can see and use `null` plus an explanation for unavailable values; it must never guess. The harness stores this agent-reported receipt separately from measurements collected from the process and authoritative provider usage or billing telemetry. Results show both and identify the source for each field. If a product exposes no authoritative cost, publish cost as unavailable rather than treating an agent estimate as a bill.
 
-Capture prompt and completion tokens, cached tokens, model/tool/API call counts, wall time, and provider-reported cost with currency whenever exposed. Report cost per attempt and cost per successful task. Keep subscription pricing separate from marginal API cost and report it only as a separate pricing context. Save the provider rate-card date and pricing assumptions for any recalculated estimate.
+Capture prompt and completion tokens, cached tokens, model/tool/API call counts, wall time, and provider-reported cost or usage with its unit whenever exposed. The current runner records wall time and provider usage; it does not yet measure isolated CPU time or peak memory, so do not publish those as harness measurements. Report cost per attempt and cost per successful task. Keep subscription pricing separate from marginal API cost and report it only as a separate pricing context. Save the provider rate-card date and pricing assumptions for any recalculated estimate.
 
 Do not infer missing token usage or cost. Mark unavailable fields as `null` and state why. Do not compare provider subscription fees as per-task API cost.
 
