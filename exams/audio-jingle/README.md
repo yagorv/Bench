@@ -1,12 +1,20 @@
 # Synthesize the fixed eight-second jingle
 
 **ID:** `oneshot.audio-jingle.v1`  
-**Complejidad estimada:** 3–8 minutos
+**Duración estimada:** 3–8 minutos
 
-## Cómo entregarlo
+## Propósito del examen
 
-Envía `TASK.md` y todos los archivos de esta carpeta al agente en una sesión nueva. Pídele que devuelva los siguientes archivos con estas rutas relativas:
+Medir la capacidad de generar audio siguiendo una partitura fija.
+
+## Resultado esperado
+
+Un WAV mono de 8 segundos, con 16 notas en orden y el formato especificado.
+
+El agente debe devolverte estos archivos con las rutas indicadas:
 
 - `submission/jingle.wav`
 
-La carpeta contiene todos los datos y archivos de inicio de este examen. No necesita preparación adicional.
+## Cómo entregarlo
+
+Envía `TASK.md` y todos los archivos de esta carpeta en una conversación nueva. Esta carpeta incluye el contexto, las entradas y los archivos iniciales necesarios; no tienes que preparar nada.

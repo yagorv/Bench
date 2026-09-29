@@ -1,12 +1,20 @@
 # Generate a PNG artifact with fixed dimensions
 
 **ID:** `oneshot.png-artifact.v1`  
-**Complejidad estimada:** Tarea de calibración
+**Duración estimada:** calibración
 
-## Cómo entregarlo
+## Propósito del examen
 
-Envía `TASK.md` y todos los archivos de esta carpeta al agente en una sesión nueva. Pídele que devuelva los siguientes archivos con estas rutas relativas:
+Medir la generación de una ilustración a partir de una descripción visual.
+
+## Resultado esperado
+
+Un PNG de 256 × 256 píxeles que muestre el faro rojo junto al mar al atardecer.
+
+El agente debe devolverte estos archivos con las rutas indicadas:
 
 - `submission/image.png`
 
-La carpeta contiene todos los datos y archivos de inicio de este examen. No necesita preparación adicional.
+## Cómo entregarlo
+
+Envía `TASK.md` y todos los archivos de esta carpeta en una conversación nueva. Esta carpeta incluye el contexto, las entradas y los archivos iniciales necesarios; no tienes que preparar nada.

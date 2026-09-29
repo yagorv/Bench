@@ -1,12 +1,20 @@
 # Review a multi-module Python service for seeded defects
 
 **ID:** `review.python-security-defect.v1`  
-**Complejidad estimada:** 10–20 minutos
+**Duración estimada:** 10–20 minutos
 
-## Cómo entregarlo
+## Propósito del examen
 
-Envía `TASK.md` y todos los archivos de esta carpeta al agente en una sesión nueva. Pídele que devuelva los siguientes archivos con estas rutas relativas:
+Medir la capacidad de revisar varios módulos Python y detectar defectos de seguridad y lógica.
+
+## Resultado esperado
+
+Un `submission/findings.json` con los hallazgos, archivo, línea, severidad y explicación.
+
+El agente debe devolverte estos archivos con las rutas indicadas:
 
 - `submission/findings.json`
 
-La carpeta contiene todos los datos y archivos de inicio de este examen. No necesita preparación adicional.
+## Cómo entregarlo
+
+Envía `TASK.md` y todos los archivos de esta carpeta en una conversación nueva. Esta carpeta incluye el contexto, las entradas y los archivos iniciales necesarios; no tienes que preparar nada.
