@@ -1,5 +1,8 @@
-Review every Python module under `inputs/` as if reviewing a pull request for the described service. Return `submission/findings.json` as an object with a `findings` array. Report all 12 seeded defects and no unrelated findings. Each finding must include `rule_id`, `path`, one-based `line`, `severity`, and a concise explanation. Do not modify the source files. The evaluator checks complete coverage, location, severity, and false positives.
+Implement the deterministic workflow scheduling engine described in `context/context.md`. Build a modular Python package under `submission/flowbench/` and provide the CLI entry point `python -m flowbench INPUT.json --output OUTPUT.json`. Run it on `inputs/workflows.json` and save the result to `submission/schedules.json`. The hidden evaluator will also run additional workflows and invalid inputs. Match every validation, retry, dependency, ordering, and output rule in the context contract.
 
+## Fixed task package
+
+Read every file listed in `context_files` in `task.json`. Work from this task workspace, use relative paths, and write deliverables under `submission/`.
 
 ## Required usage receipt
 
@@ -8,7 +11,7 @@ Report only usage and cost you can actually inspect. Never estimate a billed cos
 ```json
 {
   "schema_version": 1,
-  "task_id": "review.python-security-defect.v1",
+  "task_id": "python.workflow-scheduler.v1",
   "status": "completed",
   "agent_reported": {
     "model": null,

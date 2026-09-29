@@ -1,0 +1,111 @@
+[
+  {
+    "workflow_id": "parallel-dependencies",
+    "workers": 2,
+    "tasks": [
+      {
+        "id": "alpha",
+        "duration": 2,
+        "depends_on": []
+      },
+      {
+        "id": "beta",
+        "duration": 1,
+        "depends_on": []
+      },
+      {
+        "id": "gamma",
+        "duration": 3,
+        "depends_on": [
+          "alpha",
+          "beta"
+        ]
+      }
+    ]
+  },
+  {
+    "workflow_id": "retry-backoff",
+    "workers": 1,
+    "tasks": [
+      {
+        "id": "alpha",
+        "duration": 2,
+        "depends_on": [],
+        "fail_attempts": 1,
+        "max_attempts": 2
+      },
+      {
+        "id": "beta",
+        "duration": 1,
+        "depends_on": []
+      }
+    ]
+  },
+  {
+    "workflow_id": "permanent-failure",
+    "workers": 2,
+    "tasks": [
+      {
+        "id": "alpha",
+        "duration": 1,
+        "depends_on": [],
+        "fail_attempts": 2,
+        "max_attempts": 2
+      },
+      {
+        "id": "beta",
+        "duration": 2,
+        "depends_on": []
+      },
+      {
+        "id": "gamma",
+        "duration": 1,
+        "depends_on": [
+          "alpha"
+        ]
+      },
+      {
+        "id": "delta",
+        "duration": 1,
+        "depends_on": [
+          "beta"
+        ]
+      }
+    ]
+  },
+  {
+    "workflow_id": "multiple-retries",
+    "workers": 3,
+    "tasks": [
+      {
+        "id": "load",
+        "duration": 2,
+        "depends_on": [],
+        "fail_attempts": 2,
+        "max_attempts": 3
+      },
+      {
+        "id": "map-a",
+        "duration": 3,
+        "depends_on": [
+          "load"
+        ]
+      },
+      {
+        "id": "map-b",
+        "duration": 1,
+        "depends_on": [
+          "load"
+        ]
+      },
+      {
+        "id": "reduce",
+        "duration": 2,
+        "depends_on": [
+          "map-a",
+          "map-b"
+        ]
+      }
+    ]
+  }
+]

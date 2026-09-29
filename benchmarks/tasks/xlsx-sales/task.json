@@ -2,7 +2,7 @@
   "id": "oneshot.xlsx-sales-report.v1",
   "category": "one-shot-spreadsheet",
   "title": "Build a deterministic sales workbook",
-  "status": "ready",
+  "status": "calibration",
   "requires": [
     "spreadsheet"
   ],

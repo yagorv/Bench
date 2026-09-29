@@ -109,11 +109,14 @@ def cmd_init(_: argparse.Namespace) -> int:
 
 def cmd_list(_: argparse.Namespace) -> int:
     tasks = load_tasks()
-    print(f"Agent Benchmark {__version__}: {len(tasks)} runnable tasks")
-    print(f"{'TASK ID':38} {'CATEGORY':22} {'LEVEL':22} {'ORACLE':20} STATUS")
+    ready = sum(task.get("status") == "ready" for task, _ in tasks.values())
+    print(f"Agent Benchmark {__version__}: {ready} long-form tasks, {len(tasks) - ready} calibration tasks")
+    print(f"{'TASK ID':38} {'CATEGORY':22} {'LEVEL':22} {'TIME':10} {'ORACLE':20} STATUS")
     for task_id, (task, _) in tasks.items():
+        estimate = task.get("estimated_minutes")
+        duration = f"{estimate['min']}-{estimate['max']}m" if estimate else "quick"
         print(f"{task_id:38} {task.get('category','-'):22} {task.get('difficulty','-'):22} "
-              f"{task['evaluator']['type']:20} {task.get('status','draft')}")
+              f"{duration:10} {task['evaluator']['type']:20} {task.get('status','draft')}")
     return 0
 
 
@@ -402,7 +405,8 @@ def evaluate(task: dict[str, Any], task_dir: Path, workspace: Path) -> dict[str,
         except (BenchError, AttributeError, TypeError) as exc:
             details.append(f"Invalid findings JSON: {exc}")
     elif kind == "data-clean-csv":
-        passed, details = _eval_data_clean(workspace)
+        passed, details, measurements = _eval_data_clean(workspace)
+        return {"passed": passed, "type": kind, "details": details, "measurements": measurements}
     elif kind == "ascii-exact":
         output = submission / task["evaluator"].get("output", "art.txt")
         source = workspace / "inputs" / "portrait.pgm"
@@ -420,6 +424,9 @@ def evaluate(task: dict[str, Any], task_dir: Path, workspace: Path) -> dict[str,
         passed, details = _eval_png(task, submission)
     elif kind == "mp4-properties":
         passed, details = _eval_mp4(task, submission)
+    elif kind == "python-unittest":
+        passed, details, measurements = _eval_python_unittest(task, task_dir, workspace)
+        return {"passed": passed, "type": kind, "details": details, "measurements": measurements}
     else:
         raise BenchError(f"Unknown evaluator type: {kind}")
     return {"passed": passed, "type": kind, "details": details}
@@ -486,31 +493,35 @@ def _reference_clean(input_path: Path) -> tuple[list[dict[str, str]], dict[str, 
                      "rejected_rows": rejected, "duplicate_rows": duplicates}
 
 
-def _eval_data_clean(workspace: Path) -> tuple[bool, list[str]]:
+def _eval_data_clean(workspace: Path) -> tuple[bool, list[str], dict[str, Any]]:
     submission = workspace / "submission"
     script = submission / "solution.py"
     if not script.exists():
-        return False, ["submission/solution.py missing"]
+        return False, ["submission/solution.py missing"], {}
     input_path = workspace / "inputs" / "events.csv"
     cleaned_path = submission / "cleaned.csv"
     summary_path = submission / "summary.json"
     try:
+        started = time.perf_counter()
         result = subprocess.run([sys.executable, str(script), "--input", str(input_path),
                                  "--output", str(cleaned_path), "--summary", str(summary_path)],
                                 cwd=workspace, capture_output=True, text=True, timeout=180, check=False)
+        runtime_ms = round((time.perf_counter() - started) * 1000)
+        measurements = {"solution_runtime_ms": runtime_ms}
         if result.returncode != 0:
-            return False, [f"solution.py exited {result.returncode}: {result.stderr[-2000:]}"]
+            return False, [f"solution.py exited {result.returncode}: {result.stderr[-2000:]}",], measurements
         expected_rows, expected_summary = _reference_clean(input_path)
         with cleaned_path.open(newline="", encoding="utf-8") as stream:
             actual_rows = list(csv.DictReader(stream))
         actual_summary = read_json(summary_path)
         if actual_rows != expected_rows:
-            return False, [f"cleaned.csv differs from reference ({len(actual_rows)} rows; expected {len(expected_rows)})"]
+            return False, [f"cleaned.csv differs from reference ({len(actual_rows)} rows; expected {len(expected_rows)})"], measurements
         if actual_summary != expected_summary:
-            return False, [f"summary.json differs from reference: {actual_summary!r}"]
-        return True, []
+            return False, [f"summary.json differs from reference: {actual_summary!r}"], measurements
+        measurements["output_bytes"] = cleaned_path.stat().st_size
+        return True, [], measurements
     except (OSError, subprocess.TimeoutExpired, BenchError, csv.Error) as exc:
-        return False, [str(exc)]
+        return False, [str(exc)], {}
 
 
 def _pgm_to_ascii(text: str) -> str:
@@ -633,6 +644,32 @@ def _eval_mp4(task: dict[str, Any], submission: Path) -> tuple[bool, list[str]]:
     return ok, [] if ok else ["file does not contain the expected MP4 ftyp, moov, and mdat boxes"]
 
 
+def _eval_python_unittest(task: dict[str, Any], task_dir: Path, workspace: Path) -> tuple[bool, list[str], dict[str, Any]]:
+    test_dir = task_dir / task["evaluator"].get("tests_dir", "grader")
+    if not test_dir.is_dir() or not list(test_dir.glob("test*.py")):
+        return False, ["hidden Python contract tests are missing"], {}
+    env = os.environ.copy()
+    old_pythonpath = env.get("PYTHONPATH", "")
+    env["PYTHONPATH"] = os.pathsep.join([str(workspace / "submission"), old_pythonpath])
+    env["AGENTBENCH_TASK_DIR"] = str(task_dir)
+    started = time.perf_counter()
+    try:
+        result = subprocess.run([sys.executable, "-m", "unittest", "discover", "-s", str(test_dir), "-p", "test*.py", "-v"],
+                                cwd=workspace, env=env, capture_output=True, text=True, timeout=300, check=False)
+        elapsed = round((time.perf_counter() - started) * 1000)
+        output = (result.stdout + "\n" + result.stderr).strip()
+        measurements = {"grader_runtime_ms": elapsed}
+        ran = re.search(r"Ran (\d+) tests?", output)
+        if ran:
+            measurements["tests_run"] = int(ran.group(1))
+        if result.returncode == 0:
+            return True, [output.splitlines()[-1] if output else "hidden contract tests passed"], measurements
+        return False, ["hidden contract tests failed", output[-4000:]], measurements
+    except subprocess.TimeoutExpired:
+        elapsed = round((time.perf_counter() - started) * 1000)
+        return False, ["hidden contract tests exceeded 300 seconds"], {"grader_runtime_ms": elapsed}
+
+
 def _run_one(profile: dict[str, Any], task: dict[str, Any], task_dir: Path,
              repetition: int, rows: int, seed: int) -> dict[str, Any]:
     run_id = f"{profile['id']}__{task['id']}__{repetition}__{uuid.uuid4().hex[:8]}"
@@ -688,7 +725,7 @@ def cmd_run(args: argparse.Namespace) -> int:
     elif args.category:
         selected = [task_id for task_id, (t, _) in tasks.items() if t.get("category") == args.category]
     else:
-        selected = sorted(tasks)
+        selected = sorted(task_id for task_id, (t, _) in tasks.items() if t.get("status") == "ready")
     missing = [task_id for task_id in selected if task_id not in tasks]
     if missing:
         raise BenchError("Unknown task ID(s): " + ", ".join(missing))
@@ -795,6 +832,7 @@ def cmd_report(_: argparse.Namespace) -> int:
                "provider_cost_currency", "provider_cost_source", "cost_cv_percent",
                "mean_agent_reported_cost", "agent_reported_currency", "agent_reported_cost_basis",
                "mean_wall_time_ms", "p50_wall_time_ms", "wall_time_iqr_ms",
+               "mean_solution_runtime_ms", "mean_grader_runtime_ms",
                "mean_input_tokens", "mean_output_tokens", "valid_receipts"]
     groups: dict[tuple[str, str, str], list[dict[str, Any]]] = {}
     for row in rows:
@@ -832,6 +870,10 @@ def cmd_report(_: argparse.Namespace) -> int:
         ins = [float(n) for n in ins if isinstance(n, (int, float))]
         outs = [r.get("process", {}).get("usage", {}).get("output_tokens") for r in group]
         outs = [float(n) for n in outs if isinstance(n, (int, float))]
+        solution_times = [r.get("evaluation", {}).get("measurements", {}).get("solution_runtime_ms") for r in group]
+        solution_times = [float(x) for x in solution_times if isinstance(x, (int, float))]
+        grader_times = [r.get("evaluation", {}).get("measurements", {}).get("grader_runtime_ms") for r in group]
+        grader_times = [float(x) for x in grader_times if isinstance(x, (int, float))]
         mean_cost = statistics.mean(costs) if costs else None
         successful = sum(bool(r.get("passed")) for r in group)
         cv = None
@@ -854,6 +896,8 @@ def cmd_report(_: argparse.Namespace) -> int:
             "mean_wall_time_ms": round(statistics.mean(times), 1) if times else None,
             "p50_wall_time_ms": round(percentile(times, 0.5), 1) if times else None,
             "wall_time_iqr_ms": round((percentile(times, 0.75) or 0) - (percentile(times, 0.25) or 0), 1) if times else None,
+            "mean_solution_runtime_ms": round(statistics.mean(solution_times), 1) if solution_times else None,
+            "mean_grader_runtime_ms": round(statistics.mean(grader_times), 1) if grader_times else None,
             "mean_input_tokens": statistics.mean(ins) if ins else None,
             "mean_output_tokens": statistics.mean(outs) if outs else None,
             "valid_receipts": sum(bool(r.get("receipt_valid")) for r in group),
@@ -882,7 +926,7 @@ def make_parser() -> argparse.ArgumentParser:
     choose = run.add_mutually_exclusive_group(required=True)
     choose.add_argument("--task", help="task ID")
     choose.add_argument("--category", help="run all tasks in a category")
-    choose.add_argument("--all", action="store_true", help="run every task the agent profile supports")
+    choose.add_argument("--all", action="store_true", help="run every long-form task the agent profile supports")
     run.add_argument("--repetitions", type=int, default=1)
     run.add_argument("--rows", type=int, default=1_000_000, help="data task input size (default: 1 million)")
     run.add_argument("--seed", type=int, default=20260929)

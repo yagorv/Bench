@@ -2,7 +2,7 @@
   "id": "json.normalize-records.v1",
   "category": "structured-output",
   "title": "Normalize and deduplicate JSON records",
-  "status": "ready",
+  "status": "calibration",
   "requires": [
     "text"
   ],

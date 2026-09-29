@@ -18,10 +18,10 @@ python3 -m agentbench init
 
 Edit `.agentbench/agents.json` to add local command profiles. It is ignored by Git, so credentials and machine-specific settings stay local. The template includes Claude Code and Codex CLI examples; install and authenticate them separately. Any other local CLI can be added as another command profile. For products used through a web/desktop interface, use the manual package flow below.
 
-Run one task five times, or run all tasks that a profile says it supports:
+Run one long-form task five times, or run the complete long-form battery:
 
 ```sh
-python3 -m agentbench run --agent claude-code --task python.fix-tax-calculation.v1 --repetitions 5
+python3 -m agentbench run --agent claude-code --task python.workflow-scheduler.v1 --repetitions 5
 python3 -m agentbench run --agent claude-code --all --repetitions 5 --rows 1000000 --seed 20260929
 python3 -m agentbench report
 ```
@@ -47,7 +47,7 @@ Use the provider's actual per-session charge or usage units. If it only shows su
 
 ## Runnable task set
 
-Run `python3 -m agentbench list` for IDs and evaluator names. Structured transformation and one-shot artifact tasks are short calibration cases; code review has four seeded defects, and the data task grows to one million or more rows for the main comparison. The image and video evaluators currently score only file/container validity and dimensions; they do not claim to measure visual or semantic quality. Android tasks are planned, not yet part of the runnable battery.
+The main battery contains long-form tasks designed to require several minutes of multi-step work: cleaning a generated million-row dataset, reviewing a 12-defect multi-file Python service, and implementing a deterministic workflow scheduler with hidden contract tests. Each has an estimated work range in `agentbench list`; actual wall time is measured per run and can vary by tool, hardware, and model. `--all` runs only these long-form tasks. Short JSON, bug-fix, and artifact tasks remain available by ID as calibration checks. Image and video evaluators currently check file/container validity and dimensions only. Android tasks are planned, not yet part of the runnable battery.
 
 ## Fair comparison and cost
 

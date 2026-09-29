@@ -35,10 +35,16 @@ python3 -m agentbench run --agent codex-cli --task data.clean-large-csv.v1 --rep
 python3 -m agentbench report
 ```
 
-## Tareas disponibles
+## Batería principal: tareas de varios minutos
 
-- Calibración: `json.normalize-records.v1`, `oneshot.ascii-pgm.v1`, `oneshot.png-artifact.v1`, `oneshot.mp4-artifact.v1`.
-- Intermedias: `python.fix-tax-calculation.v1`, `oneshot.xlsx-sales-report.v1`.
-- Avanzadas: `review.python-security-defect.v1` (cuatro defectos) y `data.clean-large-csv.v1` (un millón de filas por defecto).
+`--all` ejecuta solo estas tareas. Cada una combina varios pasos y se ha dimensionado para requerir varios minutos; los rangos de `task.json` son estimaciones. El tiempo real se registra y puede variar entre productos.
+
+- `data.clean-large-csv.v1`: limpieza en streaming de un millón de filas por defecto, normalización, validación, deduplicación, ordenación y resumen exacto.
+- `review.python-security-defect.v1`: revisión de varios módulos con 12 defectos sembrados, sin falsos positivos.
+- `python.workflow-scheduler.v1`: implementación modular de CLI y planificador determinista, con dependencias, concurrencia, reintentos, fallos, omisiones, validación y pruebas ocultas generadas.
+
+## Calibración
+
+Las tareas cortas siguen disponibles con `--task` para comprobar formato y funcionamiento, pero no forman parte de `--all`: `json.normalize-records.v1`, `python.fix-tax-calculation.v1`, `oneshot.ascii-pgm.v1`, `oneshot.xlsx-sales-report.v1`, `oneshot.png-artifact.v1` y `oneshot.mp4-artifact.v1`.
 
 Repite cada intento en una sesión limpia. Conserva modelo/versión, permisos, presupuesto de herramientas, límites, tamaño y semilla. Las tareas de imagen y vídeo solo tienen una comprobación técnica de archivo; su calidad visual no entra en el puntaje determinista actual.

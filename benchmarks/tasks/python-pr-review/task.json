@@ -1,7 +1,7 @@
 {
   "id": "review.python-security-defect.v1",
   "category": "code-review",
-  "title": "Find a seeded path traversal defect",
+  "title": "Review a multi-module Python service for seeded defects",
   "status": "ready",
   "requires": [
     "review"
@@ -16,14 +16,27 @@
   ],
   "difficulty": "advanced",
   "input_files": [
+    "inputs/archive.py",
     "inputs/auth.py",
     "inputs/cache.py",
+    "inputs/config.py",
+    "inputs/database.py",
+    "inputs/logging_utils.py",
+    "inputs/otp.py",
     "inputs/parser.py",
-    "inputs/payments.py"
+    "inputs/payments.py",
+    "inputs/pickle_store.py",
+    "inputs/redirect.py",
+    "inputs/transport.py"
   ],
   "starter_files": [],
   "generated_input_files": [],
   "output_files": [
-    "submission/findings.json"
-  ]
+    "submission/findings.json",
+    "submission/run-receipt.json"
+  ],
+  "estimated_minutes": {
+    "min": 10,
+    "max": 20
+  }
 }

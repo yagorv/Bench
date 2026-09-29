@@ -1,26 +1,74 @@
 [
   {
-    "rule_id": "path-traversal",
     "path": "inputs/cache.py",
     "line": 7,
-    "severity": "high"
+    "severity": "high",
+    "rule_id": "seeded-review-defect"
   },
   {
-    "rule_id": "weak-password-hash",
     "path": "inputs/auth.py",
     "line": 4,
-    "severity": "high"
+    "severity": "high",
+    "rule_id": "seeded-review-defect"
   },
   {
-    "rule_id": "float-money-rounding",
     "path": "inputs/payments.py",
     "line": 2,
-    "severity": "medium"
+    "severity": "medium",
+    "rule_id": "seeded-review-defect"
   },
   {
-    "rule_id": "shell-command-injection",
     "path": "inputs/parser.py",
     "line": 5,
-    "severity": "high"
+    "severity": "high",
+    "rule_id": "seeded-review-defect"
+  },
+  {
+    "path": "inputs/otp.py",
+    "line": 4,
+    "severity": "high",
+    "rule_id": "seeded-review-defect"
+  },
+  {
+    "path": "inputs/database.py",
+    "line": 2,
+    "severity": "high",
+    "rule_id": "seeded-review-defect"
+  },
+  {
+    "path": "inputs/transport.py",
+    "line": 5,
+    "severity": "high",
+    "rule_id": "seeded-review-defect"
+  },
+  {
+    "path": "inputs/archive.py",
+    "line": 5,
+    "severity": "high",
+    "rule_id": "seeded-review-defect"
+  },
+  {
+    "path": "inputs/redirect.py",
+    "line": 2,
+    "severity": "medium",
+    "rule_id": "seeded-review-defect"
+  },
+  {
+    "path": "inputs/config.py",
+    "line": 4,
+    "severity": "high",
+    "rule_id": "seeded-review-defect"
+  },
+  {
+    "path": "inputs/logging_utils.py",
+    "line": 4,
+    "severity": "medium",
+    "rule_id": "seeded-review-defect"
+  },
+  {
+    "path": "inputs/pickle_store.py",
+    "line": 4,
+    "severity": "high",
+    "rule_id": "seeded-review-defect"
   }
 ]

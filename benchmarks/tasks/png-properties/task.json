@@ -2,7 +2,7 @@
   "id": "oneshot.png-artifact.v1",
   "category": "one-shot-image",
   "title": "Generate a PNG artifact with fixed dimensions",
-  "status": "ready",
+  "status": "calibration",
   "requires": [
     "image"
   ],

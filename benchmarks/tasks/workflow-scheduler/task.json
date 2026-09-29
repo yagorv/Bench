@@ -1,0 +1,37 @@
+{
+  "id": "python.workflow-scheduler.v1",
+  "category": "software-engineering",
+  "title": "Implement a deterministic dependency-aware workflow scheduler",
+  "status": "ready",
+  "difficulty": "advanced",
+  "estimated_minutes": {
+    "min": 10,
+    "max": 20
+  },
+  "requires": [
+    "coding"
+  ],
+  "context_files": [
+    "context/context.md"
+  ],
+  "input_files": [
+    "inputs/workflows.json"
+  ],
+  "starter_files": [
+    "starter/submission/flowbench/__init__.py",
+    "starter/submission/flowbench/__main__.py",
+    "starter/submission/flowbench/cli.py",
+    "starter/submission/flowbench/validate.py",
+    "starter/submission/flowbench/engine.py"
+  ],
+  "generated_input_files": [],
+  "output_files": [
+    "submission/schedules.json",
+    "submission/run-receipt.json"
+  ],
+  "evaluator": {
+    "type": "python-unittest",
+    "tests_dir": "grader"
+  },
+  "generator": null
+}

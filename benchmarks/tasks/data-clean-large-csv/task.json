@@ -22,7 +22,8 @@
   "output_files": [
     "submission/solution.py",
     "submission/cleaned.csv",
-    "submission/summary.json"
+    "submission/summary.json",
+    "submission/run-receipt.json"
   ],
   "generator": {
     "id": "synthetic-events-v1",
@@ -35,5 +36,9 @@
       "amount"
     ],
     "generator_entrypoint": "agentbench.cli._generate_events"
+  },
+  "estimated_minutes": {
+    "min": 8,
+    "max": 15
   }
 }

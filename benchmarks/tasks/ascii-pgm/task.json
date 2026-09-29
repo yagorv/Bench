@@ -2,7 +2,7 @@
   "id": "oneshot.ascii-pgm.v1",
   "category": "one-shot-text",
   "title": "Convert fixed PGM pixels to exact ASCII",
-  "status": "ready",
+  "status": "calibration",
   "requires": [
     "text"
   ],

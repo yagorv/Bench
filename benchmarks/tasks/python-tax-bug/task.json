@@ -2,7 +2,7 @@
   "id": "python.fix-tax-calculation.v1",
   "category": "software-engineering",
   "title": "Fix a seeded tax calculation bug",
-  "status": "ready",
+  "status": "calibration",
   "requires": [
     "coding"
   ],

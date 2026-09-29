@@ -2,7 +2,7 @@
   "id": "oneshot.mp4-artifact.v1",
   "category": "one-shot-video",
   "title": "Generate a valid short MP4 artifact",
-  "status": "ready",
+  "status": "calibration",
   "requires": [
     "video"
   ],
