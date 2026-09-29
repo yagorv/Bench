@@ -1,0 +1,17 @@
+{
+  "id": "android.build-fix.v1",
+  "category": "android",
+  "title": "Repair the intentionally broken Android build",
+  "status": "draft",
+  "response_contract": "docs/run-receipt.schema.json",
+  "repository": "android-app/",
+  "task": "Repair the Gradle configuration so the debug app builds. Preserve the app behavior and avoid unrelated dependency upgrades.",
+  "limits": {
+    "wall_time_seconds": 900,
+    "memory_mb": 4096,
+    "network": "disabled after dependencies are cached"
+  },
+  "checks": ["debug assemble succeeds", "existing unit tests pass", "dependency versions are unchanged"],
+  "scoring": {"correctness_weight": 1.0, "performance_metrics": ["wall_time_ms", "peak_rss_bytes", "tool_calls"]},
+  "fixture_note": "The starter repository currently builds; the benchmark task pack will add a pinned broken-build fixture and its evaluator before this task is marked ready."
+}

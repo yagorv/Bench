@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/agent-benchmark/run-receipt.schema.json",
+  "title": "Agent Benchmark Run Receipt",
+  "description": "Agent-reported usage, kept separate from harness and provider measurements.",
+  "type": "object",
+  "required": ["schema_version", "task_id", "status", "agent_reported", "unavailable_fields"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "task_id": {"type": "string"},
+    "status": {"enum": ["completed", "partial", "failed", "timed_out"]},
+    "agent_reported": {
+      "type": "object",
+      "required": ["model", "input_tokens", "output_tokens", "cached_input_tokens", "model_calls", "tool_calls", "wall_time_ms", "cost", "cost_currency", "cost_basis"],
+      "properties": {
+        "model": {"type": ["string", "null"]},
+        "input_tokens": {"type": ["integer", "null"], "minimum": 0},
+        "output_tokens": {"type": ["integer", "null"], "minimum": 0},
+        "cached_input_tokens": {"type": ["integer", "null"], "minimum": 0},
+        "model_calls": {"type": ["integer", "null"], "minimum": 0},
+        "tool_calls": {"type": ["integer", "null"], "minimum": 0},
+        "wall_time_ms": {"type": ["integer", "null"], "minimum": 0},
+        "cost": {"type": ["number", "null"], "minimum": 0},
+        "cost_currency": {"type": ["string", "null"]},
+        "cost_basis": {"enum": ["provider_reported", "rate_card_estimate", "subscription", "unknown"]}
+      },
+      "additionalProperties": false
+    },
+    "unavailable_fields": {
+      "type": "array",
+      "items": {"type": "object", "required": ["field", "reason"], "properties": {"field": {"type": "string"}, "reason": {"type": "string"}}, "additionalProperties": false}
+    },
+    "notes": {"type": "string"}
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,31 @@
+{
+  "id": "data.large-csv-cleaning.v1",
+  "category": "data-engineering",
+  "title": "Clean and summarize a large sharded CSV dataset",
+  "status": "draft",
+  "response_contract": "docs/run-receipt.schema.json",
+  "input": {
+    "generator": "datasets/generate.py",
+    "default_rows": 1000000,
+    "seed": 20260929,
+    "manifest": "manifest.json"
+  },
+  "task": "Implement a streaming program that reads all CSV shards, validates records, normalizes email addresses and timestamps, removes duplicate record IDs, and writes valid records sorted by event_time plus a JSON summary. Do not load the full dataset into memory.",
+  "limits": {
+    "wall_time_seconds": 900,
+    "memory_mb": 2048,
+    "network": "disabled"
+  },
+  "checks": [
+    "output schema matches the task contract",
+    "valid and rejected row counts match the reference",
+    "duplicate record IDs are absent",
+    "normalized values satisfy the documented invariants",
+    "output is ordered by event_time then record_id",
+    "peak memory stays within the configured limit"
+  ],
+  "scoring": {
+    "correctness_weight": 1.0,
+    "performance_metrics": ["wall_time_ms", "peak_rss_bytes", "cpu_time_ms", "output_bytes"]
+  }
+}

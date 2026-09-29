@@ -1,0 +1,17 @@
+# Generated benchmark data and run artifacts
+work/
+results/
+*.csv
+*.parquet
+
+# Android / Gradle
+.gradle/
+local.properties
+**/build/
+.idea/
+*.iml
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
