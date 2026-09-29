@@ -310,6 +310,25 @@ def evaluate(task: dict[str, Any], task_dir: Path, workspace: Path) -> dict[str,
                 details.append("JSON content differs from the reference")
         except BenchError as exc:
             details.append(str(exc))
+    elif kind == "jsonl-exact":
+        output = submission / task["evaluator"].get("output", "result.jsonl")
+        expected = task_dir / task["evaluator"]["expected"]
+        try:
+            from itertools import zip_longest
+
+            missing = object()
+            for line_number, (actual, wanted) in enumerate(
+                    zip_longest(_iter_jsonl(output), _iter_jsonl(expected), fillvalue=missing), 1):
+                if actual is missing or wanted is missing:
+                    details.append(f"JSONL record count differs from the reference at line {line_number}")
+                    break
+                if actual != wanted:
+                    details.append(f"JSONL content differs from the reference at line {line_number}")
+                    break
+            else:
+                passed = True
+        except (OSError, UnicodeError, json.JSONDecodeError, ValueError) as exc:
+            details.append(f"Invalid JSON Lines output or reference: {exc}")
     elif kind == "bugfix-python":
         module = submission / task["evaluator"].get("module", "solution.py")
         passed, details = _eval_bugfix(module)
@@ -360,6 +379,17 @@ def evaluate(task: dict[str, Any], task_dir: Path, workspace: Path) -> dict[str,
     else:
         raise BenchError(f"Unknown evaluator type: {kind}")
     return {"passed": passed, "type": kind, "details": details}
+
+
+def _iter_jsonl(path: Path):
+    with path.open(encoding="utf-8") as stream:
+        for line_number, line in enumerate(stream, 1):
+            if not line.strip():
+                raise ValueError(f"blank line at {path}:{line_number}")
+            value = json.loads(line)
+            if not isinstance(value, dict):
+                raise ValueError(f"expected a JSON object at {path}:{line_number}")
+            yield value
 
 
 def _eval_bugfix(path: Path) -> tuple[bool, list[str]]:

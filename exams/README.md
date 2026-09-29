@@ -9,7 +9,7 @@ Abre una sesión nueva por agente y usa la misma carpeta y configuración al com
 | [`ascii-pgm/`](./ascii-pgm/) | `oneshot.ascii-pgm.v1` — Convert fixed PGM pixels to exact ASCII | Tarea breve |
 | [`audio-jingle/`](./audio-jingle/) | `oneshot.audio-jingle.v1` — Synthesize the fixed eight-second jingle | 3–8 minutos |
 | [`data-clean-large-csv/`](./data-clean-large-csv/) | `data.clean-large-csv.v1` — Stream-clean a fixed large CSV | 8–15 minutos |
-| [`json-normalize/`](./json-normalize/) | `json.normalize-records.v1` — Normalize and deduplicate JSON records | Tarea breve |
+| [`json-normalize/`](./json-normalize/) | `json.normalize-records.v1` — Normalizar y deduplicar un millón de registros JSON | 8–15 minutos |
 | [`mp4-properties/`](./mp4-properties/) | `oneshot.mp4-artifact.v1` — Generate a valid short MP4 artifact | Tarea de calibración |
 | [`png-properties/`](./png-properties/) | `oneshot.png-artifact.v1` — Generate a PNG artifact with fixed dimensions | Tarea de calibración |
 | [`python-pr-review/`](./python-pr-review/) | `review.python-security-defect.v1` — Review a multi-module Python service for seeded defects | 10–20 minutos |

@@ -14,9 +14,9 @@ Los paquetes de examen no incluyen respuestas esperadas ni evaluadores ocultos. 
 
 ## Exámenes disponibles
 
-Hay tres tareas largas diseñadas para requerir varios minutos de trabajo: limpiar un CSV fijo de un millón de filas, revisar doce defectos en un servicio Python con varios módulos e implementar un planificador de flujos con dependencias, concurrencia y reintentos. Sus estimaciones son de 8–20 minutos.
+Hay cuatro tareas largas diseñadas para requerir varios minutos de trabajo: limpiar un CSV fijo de un millón de filas, normalizar un millón de registros JSON Lines, revisar doce defectos en un servicio Python con varios módulos e implementar un planificador de flujos con dependencias, concurrencia y reintentos. Sus estimaciones son de 8–20 minutos.
 
-También hay siete tareas de calibración más breves: normalizar JSON, corregir un cálculo fiscal, convertir una imagen PGM a ASCII, generar una imagen PNG, un vídeo, una melodía de audio y un libro Excel.
+También hay seis tareas de calibración más breves: corregir un cálculo fiscal, convertir una imagen PGM a ASCII, generar una imagen PNG, un vídeo, una melodía de audio y un libro Excel.
 
 ## Ejecutor local opcional
 

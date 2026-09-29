@@ -9,6 +9,7 @@ Ready-to-share, self-contained exam folders are versioned under [`exams/`](../ex
 | ID | Category | Task | Deterministic evaluator |
 |---|---|---|---|
 | `data.clean-large-csv.v1` | Data engineering | Stream, normalize, validate, deduplicate, and sort one million fixed events from the included 65.6 MB CSV | Every canonical output row and summary compared; solution runtime measured |
+| `json.normalize-records.v1` | Data engineering | Normalize, validate, deduplicate, and sort one million fixed JSON Lines records | All 900,000 output records compared line-by-line against a reference |
 | `review.python-security-defect.v1` | Code review | Review a multi-file Python service and identify 12 seeded defects | Exact defect locations and severities; rejects missing and extra findings |
 | `python.workflow-scheduler.v1` | Software engineering | Implement a modular deterministic dependency scheduler with retries, failures, skips, CLI, and validation | Hidden contract suite across supplied and generated workflows |
 
@@ -20,7 +21,6 @@ These short tasks remain runnable by ID or category. They are excluded from `--a
 
 | ID | Task | Evaluator |
 |---|---|---|
-| `json.normalize-records.v1` | Normalize and sort fixed JSON records | Exact JSON equality |
 | `python.fix-tax-calculation.v1` | Fix a small seeded calculation bug | Edge case and exception checks |
 | `oneshot.ascii-pgm.v1` | Render a fixed pixel image as ASCII | Exact character rendering |
 | `oneshot.xlsx-sales-report.v1` | Create a sales workbook | Required cells, formula, sheet names, frozen header |

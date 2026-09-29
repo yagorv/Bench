@@ -1,26 +1,41 @@
 {
   "id": "json.normalize-records.v1",
-  "category": "structured-output",
-  "title": "Normalize and deduplicate JSON records",
-  "status": "calibration",
+  "category": "data-engineering",
+  "title": "Normalize and deduplicate one million JSON records",
+  "status": "ready",
   "requires": [
-    "text"
+    "data",
+    "coding"
   ],
   "evaluator": {
-    "type": "json-exact",
-    "output": "result.json",
-    "expected": "expected.json"
+    "type": "jsonl-exact",
+    "output": "result.jsonl",
+    "expected": "expected.jsonl"
   },
   "context_files": [
     "context/context.md"
   ],
-  "difficulty": "calibration",
+  "difficulty": "advanced",
   "input_files": [
-    "inputs/records.json"
+    "inputs/records.jsonl"
   ],
   "starter_files": [],
   "generated_input_files": [],
   "output_files": [
-    "submission/result.json"
-  ]
+    "submission/result.jsonl",
+    "submission/normalize.py"
+  ],
+  "dataset": {
+    "id": "synthetic-jsonl-normalization-v1",
+    "records": 1000000,
+    "unique_ids": 900000,
+    "seed": 20260929,
+    "format": "json-lines",
+    "file": "inputs/records.jsonl",
+    "sha256": "6bd4fc8a63ccf857b538192b95cefd29a6ff357e75865577940c327e9135b6be"
+  },
+  "estimated_minutes": {
+    "min": 8,
+    "max": 15
+  }
 }

@@ -1,4 +1,4 @@
-Read inputs/records.json. Normalize each email by trimming whitespace and converting to lowercase. Discard records with invalid email addresses. Keep the first valid record for each id. Sort remaining records by id ascending. Write a JSON array to submission/result.json. Preserve each record's id, email, and amount fields; amount must be a number.
+Implement `submission/normalize.py` as a standard-library Python program accepting `--input` and `--output`. Read the one-million-record `inputs/records.jsonl` file as JSON Lines, one object per line. Normalize each email by trimming whitespace and converting it to lowercase. A valid email has exactly one `@`, non-empty local and domain parts, and at least one dot in the domain. Discard invalid records; for each `id`, keep the first valid record in source order (an earlier invalid record does not count). Sort retained records by `id` ascending. Write `submission/result.jsonl` with one compact JSON object per line. Preserve exactly each record's `id`, normalized `email`, and numeric `amount`. Process the input incrementally; do not load the entire source file into memory.
 
 ## Fixed task package
 

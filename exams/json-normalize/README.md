@@ -1,20 +1,21 @@
-# Normalize and deduplicate JSON records
+# Normalizar y deduplicar un millón de registros JSON
 
 **ID:** `json.normalize-records.v1`  
-**Duración estimada:** breve
+**Duración estimada:** 8–15 minutos
 
 ## Propósito del examen
 
-Comprobar una transformación determinista de datos: normalizar correos, descartar registros inválidos y quitar duplicados.
+Medir si el agente puede transformar y ordenar un millón de registros, normalizando correos y resolviendo filas inválidas y duplicadas sin cargar toda la entrada en memoria.
 
 ## Resultado esperado
 
-Un archivo `submission/result.json` válido con los registros conservados y ordenados por ID.
+Un programa Python ejecutable que lea JSON Lines y produzca otro archivo JSON Lines con 900,000 registros válidos, únicos y ordenados por ID.
 
 El agente debe devolverte estos archivos con las rutas indicadas:
 
-- `submission/result.json`
+- `submission/result.jsonl`
+- `submission/normalize.py`
 
 ## Cómo entregarlo
 
-Envía `TASK.md` y todos los archivos de esta carpeta en una conversación nueva. Esta carpeta incluye el contexto, las entradas y los archivos iniciales necesarios; no tienes que preparar nada.
+Envía `TASK.md` y todos los archivos de esta carpeta en una conversación nueva. Esta carpeta incluye el contexto y el millón de registros de entrada; no tienes que preparar nada.
