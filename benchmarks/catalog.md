@@ -17,6 +17,18 @@ The runnable tasks are versioned under `benchmarks/tasks/`. List the current sui
 
 Image/video semantic quality, frame rate, and duration are not currently scored. Those outputs must be reported in a modality track, separately from exact software correctness, until pinned, reproducible perceptual evaluators are added. Android build, bug-fix, feature, and review tasks remain on the roadmap and are not included in `--all` yet.
 
+## Verified suite (separate runner)
+
+Five longer tasks live in [`verified-suite/`](verified-suite/README.md) and are run with its own `bench.py`, not with `python3 -m agentbench`. They are not part of `--all`. Difficulty scales by level (1 to 3) through data volume, not by changing the task.
+
+| Task | Category | Deterministic evaluator |
+|---|---|---|
+| `t01_kite_interpreter` | Implement from a formal specification | 348 hidden programs, output compared character by character |
+| `t02_kite_bugfix` | Read and fix code (3, 6 or 10 injected bugs) | Same hidden tests; net tests fixed, regressions subtract |
+| `t03_formats_unification` | Requirements to a three-CLI pipeline | Field accuracy over 20, 60 or 120 hidden files, CLI contract, robustness, stdlib-only check |
+| `t04_log_forensics` | Data analysis at scale | 19 exact answers; the log is about 55k, 425k or 2M tokens |
+| `t05_vrp` | Optimization | Feasibility, then `min(1, reference_distance / distance)` |
+
 ## Planned expansions
 
 - More data tasks: SQL aggregation, quality-defect detection, output-preserving ETL optimization, and multi-size scale curves.
