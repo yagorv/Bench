@@ -54,6 +54,18 @@ The harness controls task prompt, task context, fixtures, seed, starting workspa
 
 Repeated inference is not perfectly deterministic for most hosted agents. Use at least five attempts, publish all attempts, and compare success rate plus median/variation of time and cost. Lock model/version/settings where the vendor supports it. See [the protocol](docs/protocol.md) for the controlled and native tracks.
 
+## Verified suite (held-out inputs, generated exams)
+
+[`benchmarks/verified-suite/`](benchmarks/verified-suite/README.md) is a separate, self-contained suite with its own runner (`bench.py`, standard library only, Python 3.10+). Its tasks are longer, requirements-style problems whose exam is **generated from a seed** and checked against inputs the tool never sees: a Kite interpreter and a bug-fixing variant, a three-CLI invoice pipeline (Formats Unification), log forensics from 55k to 2M tokens, and vehicle routing with a continuous score. Every task ships a reference solution that scores 1.0 and a self-test that also checks that an empty or deliberately broken solution does not.
+
+```sh
+cd benchmarks/verified-suite
+python3 bench.py demo     # all five tasks: empty = 0, reference = 1.0
+python3 bench.py list
+```
+
+It records results in its own `results.jsonl` (score, cost, tokens, time) and reports cost per passed task and the Pareto frontier. It does not use `python3 -m agentbench` or `benchmarks/tasks/`; the two runners do not share result formats.
+
 ## Extending it
 
 Add a task directory under `benchmarks/tasks/<slug>/` with `task.json`, `prompt.md`, at least one declared file under `context/`, optional `inputs/` and `starter/`, and a hidden `expected.json`. Add an evaluator type in `agentbench/cli.py` if the current exact evaluators do not fit. The run receipt contract is [here](docs/run-receipt.schema.json), and the command adapter interface is [documented here](docs/adapters.md).
